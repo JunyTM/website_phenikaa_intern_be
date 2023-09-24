@@ -17,3 +17,11 @@ type AccessController interface {
 	Logout(w http.ResponseWriter, r *http.Request)
 	Refresh(w http.ResponseWriter, r *http.Request)
 }
+
+func NewAccessController(db *gorm.DB) AccessController {
+	return &accessController{
+		accessService: service.NewAccessService(db),
+		userService:   service.NewUserService(db),
+		db:            db,
+	}
+}
