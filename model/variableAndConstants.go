@@ -1,5 +1,10 @@
 package model
 
+var (
+	AccessTokenTime  int64 = 24
+	RefreshTokenTime int64 = 72
+)
+
 var MapModelType = map[string]interface{}{
 	"users":               []User{},
 	"roles":               []Role{},

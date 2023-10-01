@@ -32,11 +32,23 @@ type TokenDetail struct {
 	AtExpires    int64
 	RtExpires    int64
 }
- 
 
+// Payload for authentication
+type LoginPayload struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
+type RegisterPayload struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	FullName string `json:"fullName"`
+}
 
-
-
-
-
+type ChangePasswordPayload struct {
+	Username    string `json:"username"`
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}

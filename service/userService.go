@@ -13,11 +13,11 @@ import (
 
 type UserService interface {
 	CheckCredentials(username string, password string) (bool, error)
-	CheckUserExist(username string) (bool, error)
+	GetByUsername(username string) (*model.UserResponse, error)
 	Create(newUser model.User) (*model.User, error)
+	BanUser(username string) error
 	ResetPassword(username string) error
 	ChangePassword(username string, oldPassword string, newPassword string) error
-	BanUser(username string) error
 }
 
 type userService struct {
@@ -35,15 +35,20 @@ func (s *userService) CheckCredentials(username string, password string) (bool, 
 	return comparePassword(user.Password, password), nil
 }
 
-func (s *userService) CheckUserExist(username string) (bool, error) {
+func (s *userService) GetByUsername(username string) (*model.UserResponse, error) {
+	var userResponse model.UserResponse
 	var user model.User
-	if err := s.db.Where("username = ?", username).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return false, nil
-		}
-		return false, err
+	if err := s.db.Where("username = ?", username).
+		Preload("UserRoles.Role").
+		First(&user).Error; err != nil {
+		return nil, err
 	}
-	return true, nil
+
+	userResponse.ID = user.ID
+	userResponse.Username = user.Username
+	userResponse.Role = user.UserRoles[0].Role.Code
+
+	return &userResponse, nil
 }
 
 func (s *userService) Create(newUser model.User) (*model.User, error) {
@@ -76,7 +81,7 @@ func (s *userService) ResetPassword(username string) error {
 func (s *userService) ChangePassword(username string, oldPassword string, newPassword string) error {
 	check, err := s.CheckCredentials(username, oldPassword)
 	if err != nil || !check {
-		return fmt.Errorf("tai khoan hoac mat khau sai: ", err)
+		return fmt.Errorf("Worng username or password: %v", err)
 	}
 
 	var user model.User

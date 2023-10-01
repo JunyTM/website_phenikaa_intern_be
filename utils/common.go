@@ -19,6 +19,7 @@ func PatternGet(id uint) string {
 	return strconv.Itoa(int(id)) + "-:--*"
 }
 
+
 func InArray(val interface{}, array interface{}) (exists bool, index int) {
 	exists = false
 	index = -1

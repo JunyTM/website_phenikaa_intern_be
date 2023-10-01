@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"phenikaa/controller"
 	"phenikaa/infrastructure"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
 
-	_ "pdt-phenikaa-htdn/docs"
+	_ "phenikaa/docs"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -36,19 +37,22 @@ func Router() http.Handler {
 	})
 	r.Use(cors.Handler)
 
-	// api swagger for developer mode
+	// Api swagger for developer mode
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL(infrastructure.GetHTTPSwagger()),
 		httpSwagger.DocExpansion("none"),
 	))
-	
+
+	// Declare controller
+	accessController := controller.NewAccessController()
+
 	r.Route("/api/v1", func(router chi.Router) {
 		// Public routes
 		router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("pong"))
 		})
 		router.Post("/login", accessController.Login)
-		
+
 		fs := http.StripPrefix("/api/v1/pnk_htdn_storage", http.FileServer(http.Dir(infrastructure.GetRootPath()+"/"+infrastructure.GetStoragePath())))
 		router.Get("/pnk_htdn_storage/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fs.ServeHTTP(w, r)
