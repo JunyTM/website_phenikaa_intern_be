@@ -57,12 +57,12 @@ func (c *basicQueryController) Upsert(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param basicQueryPayload body model.BasicQueryPayload true "BasicQueryPayload"
+// @Param basicQueryPayload body model.ListModelId true "BasicQueryPayload"
 // @Success 200 {object} Response
 // @Router /basicQuery [delete]
 func (c *basicQueryController) Delete(w http.ResponseWriter, r *http.Request) {
 	var res Response
-	var payload model.BasicQueryPayload
+	var payload model.ListModelId
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		badRequestResponse(w, r, err)
 		return
@@ -82,8 +82,8 @@ func (c *basicQueryController) Delete(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func NewBasicQueryController() AdvanceFilterController {
-	return &advanceFilterController{
-		AdvanceFilterService: service.NewBasicQueryController(),
+func NewBasicQueryController() BasicQueryController {
+	return &basicQueryController{
+		BasicQueryService: service.NewBasicQueryService(),
 	}
 }

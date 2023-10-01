@@ -17,3 +17,26 @@ type BasicQueryPayload struct {
 	Data      interface{} `json:"data"`
 }
 
+type ListModelId struct {
+	ID        []uint `gorm:"column:id"`
+	ModelType string `json:"modelType"`
+}
+
+// TokenDetail details for token authentication
+type TokenDetail struct {
+	Username     string
+	AccessToken  string
+	RefreshToken string
+	AccessUUID   string
+	RefreshUUID  string
+	AtExpires    int64
+	RtExpires    int64
+}
+ 
+
+
+
+
+
+
+

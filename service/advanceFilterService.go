@@ -17,7 +17,7 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 	var modelType = model.MapModelType[payload.ModelType]
 	var modelPreload = model.MapAssociation[payload.ModelType]
 	if modelType == nil {
-		return nil, fmt.Errorf("Model type not found")
+		return nil, fmt.Errorf("model type not found")
 	}
 
 	var query = "id > 0 AND " + payload.QuerySerch

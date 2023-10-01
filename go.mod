@@ -17,6 +17,8 @@ require (
 	gorm.io/gorm v1.25.4
 )
 
+require github.com/google/uuid v1.3.1 // indirect
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
@@ -36,6 +38,7 @@ require (
 	github.com/lestrrat-go/iter v1.0.0 // indirect
 	github.com/lestrrat-go/jwx v1.1.0 // indirect
 	github.com/lestrrat-go/option v1.0.0 // indirect
+	github.com/lithammer/shortuuid v3.0.0+incompatible
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/myesui/uuid v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
