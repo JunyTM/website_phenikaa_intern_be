@@ -17,3 +17,9 @@ type User struct {
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`
 	UpdatedAt time.Time      `json:"updatedAt" swaggerignore:"true"`
 }
+
+type UserResponse struct {
+	ID       uint   `json:"id"`
+	Role     string `json:"role"`
+	Username string `json:"username"`
+}

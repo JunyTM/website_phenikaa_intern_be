@@ -105,5 +105,8 @@ func (s *accessService) ExtractTokenMetadata(r *http.Request) (*model.AccessDeta
 }
 
 func NewAccessService() AccessService {
-	return &accessService{}
+	return &accessService{
+		userService: NewUserService(),
+		db:          infrastructure.GetDB(),
+	}
 }

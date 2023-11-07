@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"phenikaa/controller"
 	"phenikaa/infrastructure"
 	"time"
 
@@ -10,7 +11,11 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
 
+<<<<<<< HEAD
 	// _ "pdt-phenikaa-htdn/docs"
+=======
+	_ "phenikaa/docs"
+>>>>>>> 0766cc6b4f00a86b52515e4a672150604eeb9a9e
 
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -36,12 +41,15 @@ func Router() http.Handler {
 	})
 	r.Use(cors.Handler)
 
-	// api swagger for developer mode
+	// Api swagger for developer mode
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL(infrastructure.GetHTTPSwagger()),
 		httpSwagger.DocExpansion("none"),
 	))
-	
+
+	// Declare controller
+	accessController := controller.NewAccessController()
+
 	r.Route("/api/v1", func(router chi.Router) {
 		// Public routes
 		router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {

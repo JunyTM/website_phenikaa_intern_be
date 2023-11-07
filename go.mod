@@ -11,14 +11,18 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
+	github.com/myesui/uuid v1.0.0
 	github.com/swaggo/http-swagger v1.3.4
-	github.com/twinj/uuid v1.0.0
+	github.com/swaggo/swag v1.8.1
 	go.uber.org/zap v1.26.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.4
 )
 
-require github.com/google/uuid v1.3.1 // indirect
+require (
+	github.com/google/uuid v1.3.1 // indirect
+	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
+)
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -41,19 +45,16 @@ require (
 	github.com/lestrrat-go/option v1.0.0 // indirect
 	github.com/lithammer/shortuuid v3.0.0+incompatible
 	github.com/mailru/easyjson v0.7.6 // indirect
-	github.com/myesui/uuid v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.27.10 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
-	github.com/swaggo/swag v1.8.1 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.11.0
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/tools v0.9.3 // indirect
-	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

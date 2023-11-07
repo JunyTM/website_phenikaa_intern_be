@@ -8,6 +8,8 @@ type UserRole struct {
 	RoleID uint `json:"role_id"`
 	Active bool `json:"active"`
 
+	Role *Role `json:"role" gorm:"foreignKey:RoleID; constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+
 	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
 	UpdatedAt time.Time `json:"updatedAt" swaggerignore:"true"`
 	DeletedAt time.Time `json:"-" swaggerignore:"true"`
