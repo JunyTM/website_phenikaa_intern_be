@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Bảng thông tin công việc thực tập
 type InternJob struct {
 	ID             uint   `json:"id" gorm:"autoIncrement"`
 	CompanyId      uint   `json:"company_id"`

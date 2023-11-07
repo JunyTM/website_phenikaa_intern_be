@@ -11,6 +11,7 @@ import (
 func openConnection() (*gorm.DB, error) {
 	connectSQL := "host=" + dbHost +
 		" user=" + dbUser +
+		" port=" + dbPort +
 		" dbname=" + dbName +
 		" password=" + dbPassword +
 		" sslmode=disable"
@@ -43,7 +44,14 @@ func InitDatabase(allowMigrate bool) error {
 		InfoLog.Println("Migrating database...")
 
 		db.AutoMigrate(
-			&model.User{},
+			&model.User{},               // Tài khoản
+			&model.Role{},               // Vai trò
+			&model.UserRole{},           // Phân quyền
+			&model.Profile{},            // Thông tin cá nhân
+			&model.InternJob{},          // Bài đăng tuyển dụng
+			&model.InternShip{},         // Thông tin thực tập
+			&model.InternShipEvaluate{}, // Đánh giá thực tập
+			&model.Recruitment{},        // Quản lý thông tin ứng tuyển
 		)
 		InfoLog.Println("Done migrating database")
 	}

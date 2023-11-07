@@ -12,6 +12,8 @@ import (
 func main() {
 
 	// go run main.go
+	infrastructure.InfoLog.Println("Environment: ", infrastructure.GetEnvironments())
+	infrastructure.InfoLog.Println("Server URL: ", infrastructure.GetHTTPURL())
 	infrastructure.InfoLog.Println("Database name: ", infrastructure.GetDBName())
 	log.Printf("Server running at port: %+v\n", infrastructure.GetAppPort())
 	s := &http.Server{

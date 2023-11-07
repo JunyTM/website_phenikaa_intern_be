@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Bảng quản lý thông tin công ty
 type Company struct {
 	ID          uint   `json:"id" gorm:"autoIncrement"`
 	Name        string `json:"name"`

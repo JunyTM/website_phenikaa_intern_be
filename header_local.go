@@ -4,7 +4,7 @@ package main
 // @version     2.0
 // @description APIs list for project PNK-Intern
 
-// @host     localhost:11190
+// @host     localhost:12002
 // @BasePath /api/v1
 
 // @securityDefinitions.apikey ApiKeyAuth

@@ -10,10 +10,11 @@ require (
 	github.com/go-chi/render v1.0.3
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/joho/godotenv v1.5.1
+	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/lib/pq v1.10.9
-	github.com/myesui/uuid v1.0.0
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.8.1
+	github.com/twinj/uuid v1.0.0
 	go.uber.org/zap v1.26.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.4
@@ -21,6 +22,7 @@ require (
 
 require (
 	github.com/google/uuid v1.3.1 // indirect
+	github.com/myesui/uuid v1.0.0 // indirect
 	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
 )
 

@@ -6,10 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
+// Bảng quản lý thông tin ung tuyển thực tập
 type Recruitment struct {
-	ID          uint `json:"id" gorm:"autoIncrement"`
-	ProfileId   uint `json:"profile_id"`
-	InternJobId uint `json:"intern_job_id"`
+	ID          uint `json:"id" gorm:"primaryKey"`
+	ProfileId   uint `json:"profile_id"`    // Id của sinh viên
+	InternJobId uint `json:"intern_job_id"` // Id của bài đăng tuyển dụng
+	Accepted    bool `json:"accepted"`      // Đã được nhận hay chưa
 
 	Profile   *Profile   `json:"profile" gorm:"foreignKey:ProfileId"`
 	InternJob *InternJob `json:"intern_job" gorm:"foreignKey:InternJobId"`

@@ -14,14 +14,15 @@ import (
 type UserService interface {
 	CheckCredentials(username string, password string) (bool, error)
 	GetByUsername(username string) (*model.UserResponse, error)
-	Create(newUser model.User) (*model.User, error)
+	CreateUser(newUser model.RegisterPayload) (*model.User, error)
 	BanUser(username string) error
 	ResetPassword(username string) error
-	ChangePassword(username string, oldPassword string, newPassword string) error
+	ChangePassword(payload model.ChangePasswordPayload) error
 }
 
 type userService struct {
-	db *gorm.DB
+	emailService EmailService
+	db           *gorm.DB
 }
 
 func (s *userService) CheckCredentials(username string, password string) (bool, error) {
@@ -51,42 +52,68 @@ func (s *userService) GetByUsername(username string) (*model.UserResponse, error
 	return &userResponse, nil
 }
 
-func (s *userService) Create(newUser model.User) (*model.User, error) {
-	var user model.User
-	newUser.Password = hashAndSalt(newUser.Password)
-	if err := s.db.Model(&user).Clauses(clause.Returning{}).
-		Create(&newUser).Error; err != nil {
+func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, error) {
+
+	user := model.User{
+		Username: newUser.Username,
+		Password: hashAndSalt(newUser.Password),
+	}
+
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := s.db.Model(&user).Clauses(clause.Returning{}).
+			Create(&user).Error; err != nil {
+			return err
+		}
+
+		if err := s.db.Model(&model.UserRole{}).Create(&model.UserRole{
+			UserID: user.ID,
+			RoleID: 1, // Default role is 1 (client)
+		}).Error; err != nil {
+			return err
+		}
+
+		if err := s.db.Model(&model.Profile{}).Create(&model.Profile{
+			UserId: user.ID,
+			Name:   newUser.FullName,
+			Email:  newUser.Email,
+			Phone:  newUser.Phone,
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
-	if err := s.db.Model(&model.UserRole{}).Create(&model.UserRole{
-		UserID: user.ID,
-		RoleID: 1, // Default role is 1 (client)
-	}).Error; err != nil {
-		return nil, err
+		// Gửi mail thông tin đăng nhập
+	err := s.emailService.SendEmail([]string{newUser.Email}, "Thông báo tài khoản đăng nhập Hệ thống phân công thực tập", "Tài khoản của bạn là: <br/> Tên đăng nhập: "+newUser.Username+"<br/>"+"Mật khẩu: "+newUser.Password)
+	if err != nil {
+		errLog.Println(err)
 	}
-	return &newUser, nil
+
+	return &user, nil
 }
 
-// set default password is 123456
+// set default password is phenikaa@123
 func (s *userService) ResetPassword(username string) error {
 	var user model.User
 	if err := s.db.Model(&user).Where("username = ?", username).
-		Update("password", hashAndSalt("123456")).Error; err != nil {
+		Update("password", hashAndSalt(model.DefaultPassword)).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *userService) ChangePassword(username string, oldPassword string, newPassword string) error {
-	check, err := s.CheckCredentials(username, oldPassword)
+func (s *userService) ChangePassword(payload model.ChangePasswordPayload) error {
+	check, err := s.CheckCredentials(payload.Username, payload.OldPassword)
 	if err != nil || !check {
 		return fmt.Errorf("Worng username or password: %v", err)
 	}
 
 	var user model.User
-	if err := s.db.Model(&user).Where("username = ?", username).
-		Update("password", hashAndSalt(newPassword)).Error; err != nil {
+	if err := s.db.Model(&user).Where("username = ?", payload.Username).
+		Update("password", hashAndSalt(payload.NewPassword)).Error; err != nil {
 		return err
 	}
 	return nil
@@ -117,6 +144,7 @@ func comparePassword(hashedPwd string, plainPwd string) bool {
 
 func NewUserService() UserService {
 	return &userService{
-		db: infrastructure.GetDB(),
+		emailService: NewEmailService(),
+		db:           infrastructure.GetDB(),
 	}
 }

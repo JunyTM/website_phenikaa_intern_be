@@ -3,7 +3,9 @@ package service
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"phenikaa/infrastructure"
 	"phenikaa/model"
 	"phenikaa/utils"
@@ -13,13 +15,24 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/jwtauth"
 	"github.com/twinj/uuid"
+	"gorm.io/gorm"
 )
 
 type AccessService interface {
 	CreateToken(userId uint, role string) (*model.TokenDetail, error)
+	CreateAuth(userID int, tokenDetail *model.TokenDetail) error
+	ExtractTokenMetadata(r *http.Request) (*model.AccessDetail, error)
 }
 
-type accessService struct{}
+type accessService struct {
+	userService UserService
+	db          *gorm.DB
+}
+
+var (
+	infoLog = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Llongfile)
+	errLog  = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+)
 
 func (s *accessService) CreateToken(userId uint, role string) (*model.TokenDetail, error) {
 	var err error

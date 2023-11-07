@@ -21,7 +21,6 @@ type accessController struct {
 type AccessController interface {
 	Login(w http.ResponseWriter, r *http.Request)
 	Logout(w http.ResponseWriter, r *http.Request)
-	Register(w http.ResponseWriter, r *http.Request)
 	Refresh(w http.ResponseWriter, r *http.Request)
 }
 
@@ -55,7 +54,7 @@ func (c *accessController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenDetail, err := c.accessService.CreateToken(payload.Username)
+	tokenDetail, err := c.accessService.CreateToken(userInfo.ID, userInfo.Role)
 	if err != nil {
 		internalServerErrorResponse(w, r, err)
 		return
@@ -82,20 +81,10 @@ func (c *accessController) Login(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} Response
 // @Router /logout [post]
 func (c *accessController) Logout(w http.ResponseWriter, r *http.Request) {
+
 	return
 }
 
-// @Summary Register
-// @Description Register
-// @Tags Access
-// @Accept json
-// @Produce json
-// @Param pauload body model.RegisterPayload true "UserRegister"
-// @Success 200 {object} Response
-// @Router /register [post]
-func (c *accessController) Register(w http.ResponseWriter, r *http.Request) {
-	return
-}
 
 // @Summary Refresh
 // @Description Refresh

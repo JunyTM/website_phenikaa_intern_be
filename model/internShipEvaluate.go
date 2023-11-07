@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Bảng quản lý thông tin đánh giá thực tập
 type InternShipEvaluate struct {
 	ID         uint   `json:"id" gorm:"autoIncrement"`
 	Purpose    string `json:"purpose"`    // Mục đích thực tập

@@ -9,13 +9,10 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 
-<<<<<<< HEAD
-	// _ "pdt-phenikaa-htdn/docs"
-=======
-	_ "phenikaa/docs"
->>>>>>> 0766cc6b4f00a86b52515e4a672150604eeb9a9e
+	// _ "phenikaa/docs"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -49,14 +46,42 @@ func Router() http.Handler {
 
 	// Declare controller
 	accessController := controller.NewAccessController()
+	userController := controller.NewUserController()
+	basicQueryController := controller.NewBasicQueryController()
+	advanceFilterController := controller.NewAdvanceFilterController()
 
 	r.Route("/api/v1", func(router chi.Router) {
-		// Public routes
+		// Ping the API
 		router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("pong"))
 		})
+
+		// Public routes
 		router.Post("/login", accessController.Login)
-		
+		router.Post("/logout", accessController.Logout)
+		router.Post("/refresh", accessController.Refresh)
+		router.Post("/users/register", userController.Register)
+
+		// Private routes
+		router.Group(func(protectRouter chi.Router) {
+			protectRouter.Use(jwtauth.Authenticator)
+			protectRouter.Use(jwtauth.Verifier((*jwtauth.JWTAuth)(infrastructure.GetEncodeAuth())))
+
+			protectRouter.Route("/users", func(userRouter chi.Router) {
+				userRouter.Put("/reset-password", userController.ResetPassword)
+				userRouter.Put("/change-password", userController.ChangePassowrd)
+			})
+
+			protectRouter.Route("/basic-query", func(accessRouter chi.Router) {
+				accessRouter.Post("/", basicQueryController.Upsert)
+				accessRouter.Delete("/", basicQueryController.Delete)
+			})
+
+			protectRouter.Route("/advance-filter", func(accessRouter chi.Router) {
+				accessRouter.Post("/", advanceFilterController.Filter)
+			})
+		})
+
 		fs := http.StripPrefix("/api/v1/pnk_intern_storage", http.FileServer(http.Dir(infrastructure.GetRootPath()+"/"+infrastructure.GetStoragePath())))
 		router.Get("/pnk_intern_storage/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fs.ServeHTTP(w, r)

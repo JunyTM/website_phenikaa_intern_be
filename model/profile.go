@@ -7,15 +7,14 @@ import (
 )
 
 type Profile struct {
-	ID        uint   `json:"id" gorm:"autoIncrement"`
-	UserId    uint   `json:"user_id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Code      string `json:"code"`
-	Gender    string `json:"gender"`
-	Phone     string `json:"phone"`
-	Email     string `json:"email"`
-	Birthday  string `json:"birthday"`
+	ID       uint   `json:"id" gorm:"autoIncrement"`
+	UserId   uint   `json:"user_id"`
+	Name     string `json:"name"`
+	Code     string `json:"code"`
+	Gender   string `json:"gender"`
+	Phone    string `json:"phone"`
+	Email    string `json:"email"`
+	Birthday string `json:"birthday"`
 
 	User        *User         `json:"user" gorm:"foreignKey:UserId"`
 	Recruitment []Recruitment `json:"recruitment" gorm:"foreignKey:ProfileId"`

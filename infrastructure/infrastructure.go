@@ -15,21 +15,22 @@ import (
 )
 
 const (
-	APPPORT    = "APPPORT"
-	DBHOST     = "DBHOST"
-	DBPORT     = "DBPORT"
-	DBUSER     = "DBUSER"
-	DBPASSWORD = "DBPASSWORD"
-	DBNAME     = "DBNAME"
+	APPPORT    = "APP_PORT"
+	DBHOST     = "DB_HOST"
+	DBPORT     = "DB_PORT"
+	DBUSER     = "DB_USER"
+	DBPASSWORD = "DB_PASSWORD"
+	DBNAME     = "DB_NAME"
 
-	HTTPSWAGGER = "HTTPSWAGGER"
-	ROOTPATH    = "ROOTPATH"
+	ROOTPATH    = "ROOT_PATH"
+	HTTPURL     = "HTTP_URL"
+	HTTPSWAGGER = "HTTP_SWAGGER"
 
 	PRIVATEPASSWORD = "PRIVATE_PASSWORD"
 	PRIVATEPATH     = "PRIVATE_PATH"
 	PUBLICPATH      = "PUBLIC_PATH"
 
-	REDISURL = "REDISURL"
+	REDISURL = "REDIS_URL"
 
 	EXTENDHOUR         = "EXTEND_ACCESS_HOUR"
 	EXTENDACCESSMINUTE = "EXTEND_ACCESS_MINUTE"
@@ -52,6 +53,7 @@ var (
 	dbPassword string
 	dbName     string
 
+	httpURL     string
 	httpSwagger string
 	rootPath    string
 	staticPath  string
@@ -114,8 +116,8 @@ func loadEnvParameters(version int, dbNameArg string, dbPwdArg string) {
 	root, _ := os.Getwd()
 	env = getStringEnvParameter(ENV, goDotEnvVariable(ENV))
 	appPort = getStringEnvParameter(APPPORT, goDotEnvVariable(APPPORT))
-
 	dbPort = getStringEnvParameter(DBPORT, goDotEnvVariable(DBPORT))
+
 	switch version {
 	case 0:
 		dbHost = getStringEnvParameter(DBHOST, "localhost")
@@ -140,17 +142,18 @@ func loadEnvParameters(version int, dbNameArg string, dbPwdArg string) {
 	extendRefreshHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDREFRESHHOUR, "1440"))
 	// extendAccessMinute, _ = strconv.Atoi(getStringEnvParameter(EXTENDACCESSMINUTE, goDotEnvVariable(EXTENDACCESSMINUTE)))
 
-	httpSwagger = getStringEnvParameter(HTTPSWAGGER, goDotEnvVariable(HTTPSWAGGER))
-
 	redisURL = getStringEnvParameter(REDISURL, goDotEnvVariable("REDIS_URL"))
+
+	httpURL = getStringEnvParameter(HTTPURL, goDotEnvVariable(HTTPURL))
+	httpSwagger = getStringEnvParameter(HTTPSWAGGER, goDotEnvVariable(HTTPSWAGGER))
 
 	rootPath = getStringEnvParameter(ROOTPATH, root)
 	staticPath = rootPath + "/static"
+	storagePath = "pnk_intern_storage"
 
 	NameRefreshTokenInCookie = "RefreshToken"
 	NameAccessTokenInCookie = "AccessToken"
 
-	storagePath = "pnk_htdn_storage"
 	mailServer = getStringEnvParameter(MAILSERVER, goDotEnvVariable(MAILSERVER))
 	mailPort = getStringEnvParameter(MAILPORT, goDotEnvVariable(MAILPORT))
 	mailAccount = getStringEnvParameter(MAILACCOUNT, goDotEnvVariable(MAILACCOUNT))
@@ -167,6 +170,7 @@ func init() {
 	// Get version ARGS
 	var version int
 	flag.IntVar(&version, "v", 1, "select version dev v1 or dev v2")
+
 	var dbNameArg string
 	flag.StringVar(&dbNameArg, "dbname", "postgres", "database name need to connect")
 
@@ -184,16 +188,12 @@ func init() {
 		ErrLog.Println("error load auth token: ", err)
 	}
 
-	if err := InitRedis(); err != nil {
-		log.Fatal("error initialize redis: ", err)
-	}
+	// if err := InitRedis(); err != nil {
+	// 	log.Fatal("error initialize redis: ", err)
+	// }
 
 	if err := InitDatabase(initDB); err != nil {
 		ErrLog.Println("error initialize database: ", err)
-	}
-
-	if err := InitRedis(); err != nil {
-		ErrLog.Println("error initialize redis: ", err)
 	}
 }
 
@@ -206,10 +206,16 @@ func GetDB() *gorm.DB {
 	return db
 }
 
+// GetHTTPURL export http url
+func GetHTTPURL() string {
+	return httpURL
+} 
+
 // GetHTTPSwagger export link swagger
 func GetHTTPSwagger() string {
 	return httpSwagger
 }
+
 
 // GetAppPort export app port
 func GetAppPort() string {

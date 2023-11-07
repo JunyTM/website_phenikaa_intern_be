@@ -27,7 +27,7 @@ type basicQueryController struct {
 // @Security ApiKeyAuth
 // @Param basicQueryPayload body model.BasicQueryPayload true "BasicQueryPayload"
 // @Success 200 {object} Response
-// @Router /basicQuery [post]
+// @Router /basic-query [post]
 func (c *basicQueryController) Upsert(w http.ResponseWriter, r *http.Request) {
 	var payload model.BasicQueryPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -59,7 +59,7 @@ func (c *basicQueryController) Upsert(w http.ResponseWriter, r *http.Request) {
 // @Security ApiKeyAuth
 // @Param basicQueryPayload body model.ListModelId true "BasicQueryPayload"
 // @Success 200 {object} Response
-// @Router /basicQuery [delete]
+// @Router /basic-query [delete]
 func (c *basicQueryController) Delete(w http.ResponseWriter, r *http.Request) {
 	var res Response
 	var payload model.ListModelId
