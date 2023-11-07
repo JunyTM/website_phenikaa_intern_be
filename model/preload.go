@@ -32,11 +32,9 @@ type TokenDetail struct {
 	AtExpires    int64
 	RtExpires    int64
 }
- 
 
-
-
-
-
-
-
+// AccessDetail access detail only from token
+type AccessDetail struct {
+	AccessUUID string
+	UserID     int
+}

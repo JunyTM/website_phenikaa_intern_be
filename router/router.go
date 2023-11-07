@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
 
-	_ "pdt-phenikaa-htdn/docs"
+	// _ "pdt-phenikaa-htdn/docs"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -49,8 +49,8 @@ func Router() http.Handler {
 		})
 		router.Post("/login", accessController.Login)
 		
-		fs := http.StripPrefix("/api/v1/pnk_htdn_storage", http.FileServer(http.Dir(infrastructure.GetRootPath()+"/"+infrastructure.GetStoragePath())))
-		router.Get("/pnk_htdn_storage/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs := http.StripPrefix("/api/v1/pnk_intern_storage", http.FileServer(http.Dir(infrastructure.GetRootPath()+"/"+infrastructure.GetStoragePath())))
+		router.Get("/pnk_intern_storage/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fs.ServeHTTP(w, r)
 		}))
 	})

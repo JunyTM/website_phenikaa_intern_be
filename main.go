@@ -15,7 +15,7 @@ func main() {
 	infrastructure.InfoLog.Println("Database name: ", infrastructure.GetDBName())
 	log.Printf("Server running at port: %+v\n", infrastructure.GetAppPort())
 	s := &http.Server{
-		Addr:           ":8080",
+		Addr:           ":" + infrastructure.GetAppPort(),
 		Handler:        router.Router(),
 		ReadTimeout:    6000 * time.Second,
 		WriteTimeout:   6000 * time.Second,

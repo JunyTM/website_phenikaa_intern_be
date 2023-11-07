@@ -15,21 +15,21 @@ import (
 )
 
 const (
-	APPPORT    = "APP_PORT"
-	DBHOST     = "DB_HOST"
-	DBPORT     = "DB_PORT"
-	DBUSER     = "DB_USER"
-	DBPASSWORD = "DB_PASSWORD"
-	DBNAME     = "DB_NAME"
+	APPPORT    = "APPPORT"
+	DBHOST     = "DBHOST"
+	DBPORT     = "DBPORT"
+	DBUSER     = "DBUSER"
+	DBPASSWORD = "DBPASSWORD"
+	DBNAME     = "DBNAME"
 
-	HTTPSWAGGER = "HTTP_SWAGGER"
-	ROOTPATH    = "ROOT_PATH"
+	HTTPSWAGGER = "HTTPSWAGGER"
+	ROOTPATH    = "ROOTPATH"
 
 	PRIVATEPASSWORD = "PRIVATE_PASSWORD"
 	PRIVATEPATH     = "PRIVATE_PATH"
 	PUBLICPATH      = "PUBLIC_PATH"
 
-	REDISURL = "REDIS_URL"
+	REDISURL = "REDISURL"
 
 	EXTENDHOUR         = "EXTEND_ACCESS_HOUR"
 	EXTENDACCESSMINUTE = "EXTEND_ACCESS_MINUTE"
@@ -137,8 +137,8 @@ func loadEnvParameters(version int, dbNameArg string, dbPwdArg string) {
 	publicPath = getStringEnvParameter(PUBLICPATH, root+"/infrastructure/public.pem")
 
 	extendHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDHOUR, "720"))
-	extendAccessMinute, _ = strconv.Atoi(getStringEnvParameter(EXTENDACCESSMINUTE, goDotEnvVariable(EXTENDACCESSMINUTE)))
-	extendRefreshHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDREFRESHHOUR, goDotEnvVariable(EXTENDREFRESHHOUR)))
+	extendRefreshHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDREFRESHHOUR, "1440"))
+	// extendAccessMinute, _ = strconv.Atoi(getStringEnvParameter(EXTENDACCESSMINUTE, goDotEnvVariable(EXTENDACCESSMINUTE)))
 
 	httpSwagger = getStringEnvParameter(HTTPSWAGGER, goDotEnvVariable(HTTPSWAGGER))
 

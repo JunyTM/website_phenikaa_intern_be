@@ -24,3 +24,4 @@ var MapAssociation = map[string]map[string]interface{}{ // Alown preload associa
 		"InternShip":  "",
 	},
 }
+
