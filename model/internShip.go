@@ -2,7 +2,7 @@ package model
 
 // Bảng quản lý thông tin báo cáo thực tập của sinh viên sinh
 type InternShip struct {
-	ID                   uint   `json:"id" gorm:"autoIncrement"`
+	ID                   uint   `json:"id" gorm:"primaryKey"`
 	ProfileId            uint   `json:"profile_id"`
 	CompanyId            uint   `json:"company_id"`
 	InternShipEvaluateId uint   `json:"internship_evaluate_id"`

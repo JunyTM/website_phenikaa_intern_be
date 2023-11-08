@@ -8,7 +8,7 @@ import (
 
 // Bảng thông tin công việc thực tập
 type InternJob struct {
-	ID             uint   `json:"id" gorm:"autoIncrement"`
+	ID             uint   `json:"id" gorm:"primaryKey"`
 	CompanyId      uint   `json:"company_id"`
 	Title          string `json:"title"`           // Tên công việc
 	JobDesc        string `json:"job_description"` // Mô tả công việc

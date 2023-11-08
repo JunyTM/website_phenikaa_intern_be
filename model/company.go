@@ -8,7 +8,7 @@ import (
 
 // Bảng quản lý thông tin công ty
 type Company struct {
-	ID          uint   `json:"id" gorm:"autoIncrement"`
+	ID          uint   `json:"id" gorm:"primaryKey"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	FoundingDay string `json:"founding_day"`

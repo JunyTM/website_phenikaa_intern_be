@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
-	"github.com/go-chi/jwtauth"
+	// "github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 
 	// _ "phenikaa/docs"
@@ -64,8 +64,8 @@ func Router() http.Handler {
 
 		// Private routes
 		router.Group(func(protectRouter chi.Router) {
-			protectRouter.Use(jwtauth.Authenticator)
-			protectRouter.Use(jwtauth.Verifier((*jwtauth.JWTAuth)(infrastructure.GetEncodeAuth())))
+			// protectRouter.Use(jwtauth.Authenticator)
+			// protectRouter.Use(jwtauth.Verifier((*jwtauth.JWTAuth)(infrastructure.GetEncodeAuth())))
 
 			protectRouter.Route("/users", func(userRouter chi.Router) {
 				userRouter.Put("/reset-password", userController.ResetPassword)

@@ -8,7 +8,7 @@ import (
 
 // Bảng quản lý thông tin đánh giá thực tập
 type InternShipEvaluate struct {
-	ID         uint   `json:"id" gorm:"autoIncrement"`
+	ID         uint   `json:"id" gorm:"primaryKey"`
 	Purpose    string `json:"purpose"`    // Mục đích thực tập
 	Attitude   string `json:"attitude"`   // Thái độ
 	Ability    string `json:"ability"`    // Năng lực

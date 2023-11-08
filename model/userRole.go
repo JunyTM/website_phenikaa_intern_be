@@ -3,7 +3,7 @@ package model
 import "time"
 
 type UserRole struct {
-	ID     uint `json:"id" gorm:"autoIncrement"`
+	ID     uint `json:"id" gorm:"primaryKey"`
 	UserID uint `json:"user_id"`
 	RoleID uint `json:"role_id"`
 	Active bool `json:"active"`

@@ -53,7 +53,7 @@ func (s *userService) GetByUsername(username string) (*model.UserResponse, error
 }
 
 func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, error) {
-
+	var userInfo model.User
 	user := model.User{
 		Username: newUser.Username,
 		Password: hashAndSalt(newUser.Password),
@@ -81,18 +81,23 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 			return err
 		}
 
+		if err := s.db.Model(&model.User{}).Where("id = ?", user.ID).Preload("UserRoles.Role").First(&userInfo).Error; err != nil {
+			return err
+		}
+
 		return nil
 	}); err != nil {
 		return nil, err
 	}
 
-		// Gửi mail thông tin đăng nhập
+	// Gửi mail thông tin đăng nhập
 	err := s.emailService.SendEmail([]string{newUser.Email}, "Thông báo tài khoản đăng nhập Hệ thống phân công thực tập", "Tài khoản của bạn là: <br/> Tên đăng nhập: "+newUser.Username+"<br/>"+"Mật khẩu: "+newUser.Password)
 	if err != nil {
 		errLog.Println(err)
 	}
 
-	return &user, nil
+	userInfo.Password = "********"
+	return &userInfo, nil
 }
 
 // set default password is phenikaa@123
