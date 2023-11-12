@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+
 	// "github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 
@@ -49,6 +50,7 @@ func Router() http.Handler {
 	userController := controller.NewUserController()
 	basicQueryController := controller.NewBasicQueryController()
 	advanceFilterController := controller.NewAdvanceFilterController()
+	fileController := controller.NewFileController()
 
 	r.Route("/api/v1", func(router chi.Router) {
 		// Ping the API
@@ -80,12 +82,18 @@ func Router() http.Handler {
 			protectRouter.Route("/advance-filter", func(accessRouter chi.Router) {
 				accessRouter.Post("/", advanceFilterController.Filter)
 			})
+
+			protectRouter.Route("/upload", func(accessRouter chi.Router) {
+				accessRouter.Post("/", fileController.UploadFileWithPath)
+			})
 		})
 
-		fs := http.StripPrefix("/api/v1/pnk_intern_storage", http.FileServer(http.Dir(infrastructure.GetRootPath()+"/"+infrastructure.GetStoragePath())))
-		router.Get("/pnk_intern_storage/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fs.ServeHTTP(w, r)
-		}))
+		router.Group(func(protectedRoute chi.Router) {
+			fs := http.StripPrefix("/api/v1/pnk_intern_storage", http.FileServer(http.Dir(infrastructure.GetRootPath()+"/"+infrastructure.GetStoragePath())))
+			router.Get("/pnk_intern_storage/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				fs.ServeHTTP(w, r)
+			}))
+		})
 	})
 	return r
 }

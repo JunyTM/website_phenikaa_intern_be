@@ -85,7 +85,8 @@ var (
 	NameRefreshTokenInCookie string
 	NameAccessTokenInCookie  string
 
-	storagePath string
+	storagePath       string
+	storagePublicPath string
 
 	mailServer   string
 	mailPort     string
@@ -148,8 +149,11 @@ func loadEnvParameters(version int, dbNameArg string, dbPwdArg string) {
 	httpSwagger = getStringEnvParameter(HTTPSWAGGER, goDotEnvVariable(HTTPSWAGGER))
 
 	rootPath = getStringEnvParameter(ROOTPATH, root)
+
 	staticPath = rootPath + "/static"
 	storagePath = "pnk_intern_storage"
+
+	storagePublicPath = "public"
 
 	NameRefreshTokenInCookie = "RefreshToken"
 	NameAccessTokenInCookie = "AccessToken"
@@ -209,13 +213,12 @@ func GetDB() *gorm.DB {
 // GetHTTPURL export http url
 func GetHTTPURL() string {
 	return httpURL
-} 
+}
 
 // GetHTTPSwagger export link swagger
 func GetHTTPSwagger() string {
 	return httpSwagger
 }
-
 
 // GetAppPort export app port
 func GetAppPort() string {
@@ -224,6 +227,11 @@ func GetAppPort() string {
 
 func GetRootPath() string {
 	return rootPath
+}
+
+// GetStoragePath get path of storage
+func GetStoragePath() string {
+	return storagePath
 }
 
 // GetStaticPath export static path
@@ -269,11 +277,6 @@ func GetRedisClient() *redis.Client {
 // GetPublicKey get public key
 func GetPublicKey() interface{} {
 	return publicKey
-}
-
-// GetStoragePath get path of storage
-func GetStoragePath() string {
-	return storagePath
 }
 
 func GetEnvironments() string {

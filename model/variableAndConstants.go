@@ -12,21 +12,33 @@ var MapModelType = map[string]interface{}{
 	"userRole":            []UserRole{},
 	"profiles":            []Profile{},
 	"companies":           []Company{},
-	"internships":         []InternShip{},
-	"internshipEvaluates": []InternShipEvaluate{},
+	"internShips":         []InternShip{},
+	"internshipEvaluates": []InternshipEvaluate{},
 	"internJobs":          []InternJob{},
 	"recruitments":        []Recruitment{},
 }
 
 var MapAssociation = map[string]map[string]interface{}{ // Alown preload association 2 level model
 	"users": {
-		"UserRoles": "",
+		"UserRoles":      "",
+		"UserRoles.Role": "",
 	},
 	"roles":    {},
 	"userRole": {},
 	"profiles": {
-		"User":        "",
-		"Recruitment": "",
-		"InternShip":  "",
+		"User":                "",
+		"User.UserRoles.Role": "",
+		"Recruitment":         "",
+		"InternShip":          "",
+	},
+	"recruitments": {
+		"Profile":   "",
+		"InternJob": "",
+	},
+	"internshipEvaluates": {},
+	"internShips": {
+		"Profile":            "",
+		"Company":            "",
+		"InternShipEvaluate": "",
 	},
 }

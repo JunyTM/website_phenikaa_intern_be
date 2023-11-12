@@ -37,8 +37,6 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 	// Upsert multiple
 	var listModelCreate []map[string]interface{}
 	var listModelUpdate []map[string]interface{}
-	var tem = reflect.TypeOf(payload.Data)
-	fmt.Println(tem)
 	if reflect.TypeOf(payload.Data).Kind() == reflect.Slice || reflect.TypeOf(payload.Data).Elem().Kind() == reflect.Slice {
 		for _, data := range payload.Data.([]interface{}) {
 			data := data.(map[string]interface{})
@@ -75,16 +73,49 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 	if payload.Data == nil {
 		return nil, fmt.Errorf("data is nil cannot upsert")
 	}
-	if payload.Data.(map[string]interface{})["id"] == nil || payload.Data.(map[string]interface{})["id"].(uint) == 0 {
+
+	if payload.Data.(map[string]interface{})["id"] == nil  {
 		payload.Data.(map[string]interface{})["id"] = maxModelId
 		if err := db.Model(modelType).Create(payload.Data.(map[string]interface{})).Error; err != nil {
 			return nil, fmt.Errorf("create error: %v", err)
 		}
-		goto End
 
-	} else if ok, _ := utils.InArray(payload.Data.(map[string]interface{})["id"].(uint), listModelId); ok {
-		if err := db.Model(modelType).Updates(payload.Data.(map[string]interface{})).Error; err != nil {
-			return nil, fmt.Errorf("update error: %v", err)
+		if payload.ModelType == "companies" {
+			user := model.User{
+				Username: payload.Data.(map[string]interface{})["email"].(string),
+				Password: hashAndSalt(model.DefaultPassword),
+			}
+			if errorUser := db.Transaction(func(tx *gorm.DB) error {
+				if err := tx.Model(&model.User{}).Create(&user).Error; err != nil {
+					return err
+				}
+
+				if err := tx.Model(&model.UserRole{}).Create(&model.UserRole{
+					UserID: user.ID,
+					RoleID: 2, // Default role is 2 (companny)
+					Active: true,
+				}).Error; err != nil {
+					return err
+				}
+
+				if err := tx.Model(&model.Company{}).Where("id = ?", maxModelId).Update("user_id", user.ID).Error; err != nil {
+					return err
+				}
+
+				return nil
+
+			}); errorUser != nil {
+				return nil, fmt.Errorf("create new user error: %v", errorUser)
+			}
+		}
+
+		goto End
+	} else {
+		var modelId uint = uint(payload.Data.(map[string]interface{})["id"].(float64))
+		if ok, _ := utils.InArray(modelId, listModelId); ok {
+			if err := db.Model(modelType).Where("id = (?)", modelId).Updates(payload.Data.(map[string]interface{})).Error; err != nil {
+				return nil, fmt.Errorf("update error: %v", err)
+			}
 		}
 	}
 
@@ -99,7 +130,7 @@ End:
 func (s *basicQueryService) Delete(payload model.ListModelId) error {
 	var db = infrastructure.GetDB()
 	var modelType = model.MapModelType[payload.ModelType]
-	if err := db.Where("id IN ?", payload.ID).Delete(modelType).Error; err != nil {
+	if err := db.Where("id IN (?)", payload.ID).Delete(modelType).Error; err != nil {
 		return fmt.Errorf("Delete error: %v", err)
 	}
 

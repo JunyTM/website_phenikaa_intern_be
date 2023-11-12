@@ -9,6 +9,7 @@ import (
 // Bảng quản lý thông tin công ty
 type Company struct {
 	ID          uint   `json:"id" gorm:"primaryKey"`
+	UserID      uint   `json:"user_id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	FoundingDay string `json:"founding_day"`

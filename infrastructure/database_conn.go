@@ -50,7 +50,7 @@ func InitDatabase(allowMigrate bool) error {
 			&model.Profile{},            // Thông tin cá nhân
 			&model.InternJob{},          // Bài đăng tuyển dụng
 			&model.InternShip{},         // Thông tin thực tập
-			&model.InternShipEvaluate{}, // Đánh giá thực tập
+			&model.InternshipEvaluate{}, // Đánh giá thực tập
 			&model.Recruitment{},        // Quản lý thông tin ứng tuyển
 		)
 		InfoLog.Println("Done migrating database")

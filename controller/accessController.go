@@ -6,6 +6,8 @@ import (
 	"phenikaa/model"
 	"phenikaa/service"
 
+	// "strings"
+
 	"github.com/go-chi/render"
 	"gorm.io/gorm"
 
@@ -60,8 +62,12 @@ func (c *accessController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fullDomain := r.Header.Get("Origin")
-	SaveHttpCookie(fullDomain, tokenDetail, w)
+	userInfo.AccessToken = tokenDetail.AccessToken
+	userInfo.RefreshToken = tokenDetail.RefreshToken
+
+	// fullDomain := r.Header.Get("Origin")
+	// fullDomain = strings.Split(fullDomain, "//")[1]
+	// SaveHttpCookie(fullDomain, tokenDetail, w)
 	res = &Response{
 		Data:    userInfo,
 		Success: true,
@@ -84,7 +90,6 @@ func (c *accessController) Logout(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 
 // @Summary Refresh
 // @Description Refresh

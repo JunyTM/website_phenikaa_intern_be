@@ -68,6 +68,7 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 		if err := s.db.Model(&model.UserRole{}).Create(&model.UserRole{
 			UserID: user.ID,
 			RoleID: 1, // Default role is 1 (client)
+			Active: true,
 		}).Error; err != nil {
 			return err
 		}

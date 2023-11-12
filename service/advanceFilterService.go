@@ -28,10 +28,9 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 	if len(payload.SelectColumn) > 0 {
 		db = db.Select(payload.SelectColumn)
 	}
-
 	if !payload.IgnoreAssociation {
 		for model, condition := range modelPreload {
-			modelPreload[model] = db.Preload(model, condition)
+			db = db.Preload(model, condition)
 		}
 	}
 

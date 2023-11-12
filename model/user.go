@@ -19,7 +19,9 @@ type User struct {
 }
 
 type UserResponse struct {
-	ID       uint   `json:"id"`
-	Role     string `json:"role"`
-	Username string `json:"username"`
+	ID           uint   `json:"id"`
+	Role         string `json:"role"`
+	Username     string `json:"username"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
