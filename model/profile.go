@@ -16,7 +16,7 @@ type Profile struct {
 	Email string `json:"email"`
 	Birthday string `json:"birthday"`
 
-	// User *User `json:"user" gorm:"foreignKey:UserId"`
+	User *User `json:"user" gorm:"foreignKey:UserId"`
 	// Recruitment []Recruitment `json:"recruitment" gorm:"foreignKey:ProfileId"`
 	// InternShip  []InternShip  `json:"internship" gorm:"foreignKey:ProfileId"`
 

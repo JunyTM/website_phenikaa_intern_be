@@ -59,7 +59,7 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 		Password: hashAndSalt(newUser.Password),
 	}
 
-	if err := s.db.Transaction(func(tx *gorm.DB) error {
+	if err := s.db.Debug().Transaction(func(tx *gorm.DB) error {
 		if err := s.db.Model(&user).Clauses(clause.Returning{}).
 			Create(&user).Error; err != nil {
 			return err

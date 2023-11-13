@@ -43,13 +43,13 @@ func InitDatabase(allowMigrate bool) error {
 	if allowMigrate {
 		InfoLog.Println("Migrating database...")
 
-		db.AutoMigrate(
+		db.Debug().AutoMigrate(
 			&model.User{},               // Tài khoản
 			&model.Role{},               // Vai trò
 			&model.UserRole{},           // Phân quyền
 			&model.Profile{},            // Thông tin cá nhân
-			&model.InternJob{},          // Bài đăng tuyển dụng
 			&model.InternShip{},         // Thông tin thực tập
+			&model.InternJob{},          // Bài đăng tuyển dụng
 			&model.InternshipEvaluate{}, // Đánh giá thực tập
 			&model.Recruitment{},        // Quản lý thông tin ứng tuyển
 		)
