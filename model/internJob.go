@@ -19,8 +19,9 @@ type InternJob struct {
 	Quantity   int    `json:"quantity"`     // Số lượng
 	// FemaleQuantity int    `json:"femaleQuantity"`  // Số lượng nữ
 	// MaleQuantity   int    `json:"maleQuantity"`    // Số lượng nam
-	Salary  string `json:"salary"`   // Mức lương
-	EndDate string `json:"end_date"` // Ngày hết hạn nộp hồ sơ
+	Salary  string   `json:"salary"`   // Mức lương
+	EndDate string   `json:"end_date"` // Ngày hết hạn nộp hồ sơ
+	Company *Company `json:"company" gorm:"foreignKey:CompanyId"`
 
 	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`

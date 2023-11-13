@@ -32,8 +32,9 @@ var MapAssociation = map[string]map[string]interface{}{ // Alown preload associa
 		"InternShip":          "",
 	},
 	"recruitments": {
-		"Profile":   "",
-		"InternJob": "",
+		"Profile":           "",
+		"InternJob":         "",
+		"InternJob.Company": "",
 	},
 	"internshipEvaluates": {},
 	"internShips": {
