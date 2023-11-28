@@ -21,6 +21,7 @@ import (
 type AccessService interface {
 	CreateToken(userId uint, role string) (*model.TokenDetail, error)
 	CreateAuth(userID int, tokenDetail *model.TokenDetail) error
+	DeleteAuth(uuid string) (int64, error)
 	ExtractTokenMetadata(r *http.Request) (*model.AccessDetail, error)
 }
 
@@ -36,8 +37,17 @@ var (
 
 func (s *accessService) CreateToken(userId uint, role string) (*model.TokenDetail, error) {
 	var err error
+
 	// Create token details
 	tokenDetail := &model.TokenDetail{}
+
+	var profile model.Profile
+	if userId != 0 {
+		if err = s.db.Model(&model.Profile{}).Where("user_id = ?", userId).Preload("User").Find(&profile).Error; err != nil {
+			return nil, err
+		}
+		tokenDetail.Username = profile.User.Username
+	}
 
 	tokenDetail.AtExpires = time.Now().Add(time.Hour * time.Duration(infrastructure.GetExtendAccessHour())).Unix()
 	tokenDetail.AccessUUID = utils.PatternGet(userId) + uuid.NewV4().String()
@@ -47,6 +57,7 @@ func (s *accessService) CreateToken(userId uint, role string) (*model.TokenDetai
 	// Create Access Token
 	atClaims := jwt.MapClaims{}
 	atClaims["access_uuid"] = tokenDetail.AccessUUID
+	atClaims["username"] = tokenDetail.Username
 	atClaims["user_id"] = userId
 	atClaims["role"] = role
 	atClaims["exp"] = tokenDetail.AtExpires
@@ -59,6 +70,7 @@ func (s *accessService) CreateToken(userId uint, role string) (*model.TokenDetai
 	// Create Resfresh Token
 	rtClaims := jwt.MapClaims{}
 	rtClaims["refresh_uuid"] = tokenDetail.RefreshUUID
+	rtClaims["username"] = tokenDetail.Username
 	rtClaims["user_id"] = userId
 	rtClaims["role"] = role
 	rtClaims["exp"] = tokenDetail.RtExpires
@@ -91,6 +103,15 @@ func (s *accessService) CreateAuth(userID int, tokenDetail *model.TokenDetail) e
 	}
 
 	return nil
+}
+
+func (c *accessService) DeleteAuth(uuid string) (int64, error) {
+	deleted, err := infrastructure.GetRedisClient().Del(uuid).Result()
+	if err != nil {
+		return 0, err
+	}
+
+	return deleted, nil
 }
 
 func (s *accessService) ExtractTokenMetadata(r *http.Request) (*model.AccessDetail, error) {

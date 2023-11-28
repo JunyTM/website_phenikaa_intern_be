@@ -2,8 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"phenikaa/model"
-	"time"
 
 	"github.com/go-chi/render"
 )
@@ -56,29 +54,4 @@ func forbiddenResponse(w http.ResponseWriter, r *http.Request, err error) {
 		Message: "Forbidden. " + err.Error(),
 	}
 	render.JSON(w, r, res)
-}
-
-func SaveHttpCookie(fullDomain string, tokenDetail *model.TokenDetail, w http.ResponseWriter) {
-	accessCookie := http.Cookie{
-		Name:   "AccessToken",
-		Domain: fullDomain,
-		Path:   "/",
-		Value:  tokenDetail.AccessToken,
-		// HttpOnly: true,
-		// Secure:   true,
-		Expires: time.Now().Add(time.Hour * time.Duration(model.AccessTokenTime)),
-	}
-
-	refreshCookie := http.Cookie{
-		Name:   "RefreshToken",
-		Domain: fullDomain,
-		Path:   "/",
-		Value:  tokenDetail.RefreshToken,
-		// HttpOnly: true,
-		// Secure:   true,
-		Expires: time.Now().Add(time.Hour * time.Duration(model.RefreshTokenTime)),
-	}
-
-	http.SetCookie(w, &accessCookie)
-	http.SetCookie(w, &refreshCookie)
 }

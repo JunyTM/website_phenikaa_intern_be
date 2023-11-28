@@ -65,9 +65,8 @@ func (c *accessController) Login(w http.ResponseWriter, r *http.Request) {
 	userInfo.AccessToken = tokenDetail.AccessToken
 	userInfo.RefreshToken = tokenDetail.RefreshToken
 
-	// fullDomain := r.Header.Get("Origin")
-	// fullDomain = strings.Split(fullDomain, "//")[1]
-	// SaveHttpCookie(fullDomain, tokenDetail, w)
+	fullDomain := r.Header.Get("Origin")
+	SaveHttpCookie(fullDomain, tokenDetail, w)
 	res = &Response{
 		Data:    userInfo,
 		Success: true,
@@ -100,6 +99,64 @@ func (c *accessController) Logout(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} Response
 // @Router /refresh [post]
 func (c *accessController) Refresh(w http.ResponseWriter, r *http.Request) {
+	var res Response
+	acccessCookie, errAccessCookie := r.Cookie("AccessToken")
+	if errAccessCookie != nil {
+		unauthorizedResponse(w, r, errAccessCookie)
+		return
+	}
+	refreshCookie, errRefeshCookie := r.Cookie("RefreshToken")
+	if errRefeshCookie != nil {
+		unauthorizedResponse(w, r, errRefeshCookie)
+		return
+	}
+
+	accessToken := acccessCookie.Value
+	accessClaims, errDecodeToken := GetAndDecodeToken(accessToken)
+	if errDecodeToken != nil {
+		unauthorizedResponse(w, r, errDecodeToken)
+		return
+	}
+
+	refreshToken := refreshCookie.Value
+	refreshClaims, errDecodeToken := GetAndDecodeToken(refreshToken)
+	if errDecodeToken != nil {
+		unauthorizedResponse(w, r, errDecodeToken)
+		return
+	}
+
+	accessUuid := accessClaims["access_uuid"].(string)
+	refreshUuid := refreshClaims["refresh_uuid"].(string)
+	userId := uint(refreshClaims["user_id"].(float64))
+	role := refreshClaims["role"].(string)
+
+	// Delete the previous Refresh Token
+	deleteAccess, errDelete := c.accessService.DeleteAuth(accessUuid)
+	if errDelete != nil || deleteAccess == 0 { // if any goes wrong
+		forbiddenResponse(w, r, errDelete)
+	}
+
+	deletedRefesh, errDelete := c.accessService.DeleteAuth(refreshUuid)
+	if errDelete != nil || deletedRefesh == 0 { // if any goes wrong
+		forbiddenResponse(w, r, errDelete)
+	}
+
+	// Create new pairs of refresh and access tokens
+	tokenDetail, err := c.accessService.CreateToken(userId, role)
+	if err != nil {
+		internalServerErrorResponse(w, r, err)
+		return
+	}
+
+	fullDomain := r.Header.Get("Origin")
+	SaveHttpCookie(fullDomain, tokenDetail, w)
+
+	res = Response{
+		Data:    nil,
+		Success: true,
+		Message: "Refresh success",
+	}
+	render.JSON(w, r, res)
 	return
 }
 
