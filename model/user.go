@@ -8,7 +8,7 @@ import (
 
 type User struct {
 	ID       uint   `json:"id" gorm:"primary_key"`
-	Username string `json:"username" gorm:"type:varchar(100);unique_index"`
+	Username string `json:"username" gorm:"type:varchar(100);unique"`
 	Password string `json:"password"`
 
 	UserRoles []UserRole `json:"user_roles" gorm:"foreignKey:UserID"`
@@ -26,4 +26,3 @@ type UserResponse struct {
 	// AccessToken  string `json:"access_token"`
 	// RefreshToken string `json:"refresh_token"`
 }
-

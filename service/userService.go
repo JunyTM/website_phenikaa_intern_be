@@ -39,19 +39,19 @@ func (s *userService) CheckCredentials(username string, password string) (bool, 
 func (s *userService) GetByUsername(username string) (*model.UserResponse, error) {
 	var userResponse model.UserResponse
 	var user model.User
-	if err := s.db.Where("username = ?", username).
+	if err := s.db.Model(&model.User{}).Where("username = ?", username).
 		Preload("UserRoles.Role").
 		First(&user).Error; err != nil {
 		return nil, err
 	}
-	var profile model.Profile
-	if err := s.db.Where("user_id").Find(&profile).Error; err != nil {
+	var profile *model.Profile
+	if err := s.db.Model(&model.Profile{}).Where("user_id = ?", user.ID).Find(&profile).Error; err != nil {
 		return nil, err
 	}
 	userResponse.ID = user.ID
 	userResponse.Username = user.Username
 	userResponse.Role = user.UserRoles[0].Role.Code
-	userResponse.Profile = &profile
+	userResponse.Profile = profile
 
 	return &userResponse, nil
 }
@@ -83,10 +83,12 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 		}
 
 		if err := s.db.Model(&model.Profile{}).Create(&model.Profile{
-			UserId: user.ID,
-			Name:   newUser.FullName,
-			Email:  newUser.Email,
-			Phone:  newUser.Phone,
+			UserId:   user.ID,
+			Name:     newUser.FullName,
+			Email:    newUser.Email,
+			Phone:    newUser.Phone,
+			Code:     newUser.Code,
+			Birthday: newUser.Birthday,
 		}).Error; err != nil {
 			return err
 		}
@@ -95,10 +97,6 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 			return err
 		}
 
-		err := s.emailService.SendEmail([]string{newUser.Email}, "Thông báo tài khoản đăng nhập Hệ thống phân công thực tập", "Tài khoản của bạn là: <br/> Tên đăng nhập: "+newUser.Email+"<br/>"+"Mật khẩu: "+newUser.Password)
-		if err != nil {
-			return err
-		}
 		return nil
 	}); err != nil {
 		return nil, err

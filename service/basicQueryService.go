@@ -16,7 +16,9 @@ type BasicQueryService interface {
 	Delete(payload model.ListModelId) error
 }
 
-type basicQueryService struct{}
+type basicQueryService struct{
+	emailService EmailService
+}
 
 func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}, error) {
 	var db = infrastructure.GetDB()
@@ -88,6 +90,11 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 				Password: hashAndSalt(model.DefaultPassword),
 			}
 			if errorUser := db.Transaction(func(tx *gorm.DB) error {
+				err := s.emailService.SendEmail([]string{user.Username}, "Thông báo tài khoản đăng nhập Hệ thống phân công thực tập", "Tài khoản của bạn là: <br/> Tên đăng nhập: "+user.Username+"<br/>"+"Mật khẩu: "+user.Password)
+				if err != nil {
+					return err
+				}
+
 				if err := tx.Model(&model.User{}).Create(&user).Error; err != nil {
 					return err
 				}
@@ -140,5 +147,7 @@ func (s *basicQueryService) Delete(payload model.ListModelId) error {
 }
 
 func NewBasicQueryService() BasicQueryService {
-	return &basicQueryService{}
+	return &basicQueryService{
+		emailService: NewEmailService(),
+	}
 }
