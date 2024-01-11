@@ -44,10 +44,14 @@ func (s *userService) GetByUsername(username string) (*model.UserResponse, error
 		First(&user).Error; err != nil {
 		return nil, err
 	}
-
+	var profile model.Profile
+	if err := s.db.Where("user_id").Find(&profile).Error; err != nil {
+		return nil, err
+	}
 	userResponse.ID = user.ID
 	userResponse.Username = user.Username
 	userResponse.Role = user.UserRoles[0].Role.Code
+	userResponse.Profile = &profile
 
 	return &userResponse, nil
 }
@@ -55,8 +59,13 @@ func (s *userService) GetByUsername(username string) (*model.UserResponse, error
 func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, error) {
 	var userInfo model.User
 	user := model.User{
-		Username: newUser.Username,
+		Username: newUser.Email,
 		Password: hashAndSalt(newUser.Password),
+	}
+
+	queryGetMaxId := "SELECT setval('users_id_seq', (SELECT MAX(id) FROM users)+1);"
+	if err := s.db.Debug().Model(&model.User{}).Raw(queryGetMaxId).Error; err != nil {
+		return nil, fmt.Errorf("set max id error: %v", err)
 	}
 
 	if err := s.db.Debug().Transaction(func(tx *gorm.DB) error {
@@ -67,7 +76,7 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 
 		if err := s.db.Model(&model.UserRole{}).Create(&model.UserRole{
 			UserID: user.ID,
-			RoleID: 1, // Default role is 1 (client)
+			RoleID: infrastructure.GetStudentRole(), // Default role is 3 (student)
 			Active: true,
 		}).Error; err != nil {
 			return err
@@ -86,17 +95,16 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 			return err
 		}
 
+		err := s.emailService.SendEmail([]string{newUser.Email}, "Thông báo tài khoản đăng nhập Hệ thống phân công thực tập", "Tài khoản của bạn là: <br/> Tên đăng nhập: "+newUser.Email+"<br/>"+"Mật khẩu: "+newUser.Password)
+		if err != nil {
+			return err
+		}
 		return nil
 	}); err != nil {
 		return nil, err
 	}
 
-	// Gửi mail thông tin đăng nhập
-	err := s.emailService.SendEmail([]string{newUser.Email}, "Thông báo tài khoản đăng nhập Hệ thống phân công thực tập", "Tài khoản của bạn là: <br/> Tên đăng nhập: "+newUser.Username+"<br/>"+"Mật khẩu: "+newUser.Password)
-	if err != nil {
-		errLog.Println(err)
-	}
-
+	// Thông tin người dùng
 	userInfo.Password = "********"
 	return &userInfo, nil
 }

@@ -41,6 +41,10 @@ const (
 	MAILACCOUNT = "MAIL_ACCOUNT"
 	MAILPASS    = "MAIL_PASS"
 	ENV         = "ENV"
+
+	ADMIN_ROLE      = "ADMIN_ROLE"
+	ENTERPRISE_ROLE = "ENTERPRISE_ROLE"
+	STUDENT_ROLE    = "STUDENT_ROLE"
 )
 
 var (
@@ -92,6 +96,10 @@ var (
 	mailPort     string
 	mailAccount  string
 	mailPassword string
+
+	adminRole      uint
+	enterpriseRole uint
+	studentRole    uint
 )
 
 func getStringEnvParameter(envParam string, defaultValue string) string {
@@ -102,10 +110,8 @@ func getStringEnvParameter(envParam string, defaultValue string) string {
 }
 
 func goDotEnvVariable(key string) string {
-
 	// load .env file
 	err := godotenv.Load(".env")
-
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
@@ -113,7 +119,7 @@ func goDotEnvVariable(key string) string {
 	return os.Getenv(key)
 }
 
-func loadEnvParameters(version int, dbNameArg string, dbPwdArg string) {
+func loadEnvParameters(version int) {
 	root, _ := os.Getwd()
 	env = getStringEnvParameter(ENV, goDotEnvVariable(ENV))
 	appPort = getStringEnvParameter(APPPORT, goDotEnvVariable(APPPORT))
@@ -123,8 +129,8 @@ func loadEnvParameters(version int, dbNameArg string, dbPwdArg string) {
 	case 0:
 		dbHost = getStringEnvParameter(DBHOST, "localhost")
 		dbUser = getStringEnvParameter(DBUSER, "postgres")
-		dbPassword = getStringEnvParameter(DBPASSWORD, dbPwdArg)
-		dbName = getStringEnvParameter(DBNAME, dbNameArg)
+		dbPassword = getStringEnvParameter(DBPASSWORD, "123456")
+		dbName = getStringEnvParameter(DBNAME, "pnk_intern_db_dev")
 		InfoLog.Println("Environment: LOCALHOST")
 
 	default:
@@ -132,16 +138,15 @@ func loadEnvParameters(version int, dbNameArg string, dbPwdArg string) {
 		dbUser = getStringEnvParameter(DBUSER, goDotEnvVariable(DBUSER))
 		dbPassword = getStringEnvParameter(DBPASSWORD, goDotEnvVariable(DBPASSWORD))
 		dbName = getStringEnvParameter(DBNAME, goDotEnvVariable(DBNAME))
-
 		InfoLog.Println("Environment: Development Default")
 	}
 
 	privatePath = getStringEnvParameter(PRIVATEPATH, root+"/infrastructure/private.pem")
 	publicPath = getStringEnvParameter(PUBLICPATH, root+"/infrastructure/public.pem")
 
-	extendHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDHOUR, "720"))
-	extendRefreshHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDREFRESHHOUR, "1440"))
-	// extendAccessMinute, _ = strconv.Atoi(getStringEnvParameter(EXTENDACCESSMINUTE, goDotEnvVariable(EXTENDACCESSMINUTE)))
+	extendHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDHOUR, goDotEnvVariable(EXTENDHOUR)))
+	extendRefreshHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDREFRESHHOUR, goDotEnvVariable(EXTENDREFRESHHOUR)))
+	extendAccessMinute, _ = strconv.Atoi(getStringEnvParameter(EXTENDACCESSMINUTE, goDotEnvVariable(EXTENDACCESSMINUTE)))
 
 	redisURL = getStringEnvParameter(REDISURL, goDotEnvVariable("REDIS_URL"))
 
@@ -162,6 +167,13 @@ func loadEnvParameters(version int, dbNameArg string, dbPwdArg string) {
 	mailPort = getStringEnvParameter(MAILPORT, goDotEnvVariable(MAILPORT))
 	mailAccount = getStringEnvParameter(MAILACCOUNT, goDotEnvVariable(MAILACCOUNT))
 	mailPassword = getStringEnvParameter(MAILPASS, goDotEnvVariable(MAILPASS))
+
+	adminRoleStr, _ := strconv.Atoi(getStringEnvParameter(ADMIN_ROLE, goDotEnvVariable(ADMIN_ROLE)))
+	enterpriseRoleStr, _ := strconv.Atoi(getStringEnvParameter(ENTERPRISE_ROLE, goDotEnvVariable(ENTERPRISE_ROLE)))
+	studentRoleStr, _ := strconv.Atoi(getStringEnvParameter(STUDENT_ROLE, goDotEnvVariable(STUDENT_ROLE)))
+	adminRole = uint(adminRoleStr)
+	enterpriseRole = uint(enterpriseRoleStr)
+	studentRole = uint(studentRoleStr)
 }
 
 func init() {
@@ -175,26 +187,20 @@ func init() {
 	var version int
 	flag.IntVar(&version, "v", 1, "select version dev v1 or dev v2")
 
-	var dbNameArg string
-	flag.StringVar(&dbNameArg, "dbname", "postgres", "database name need to connect")
-
-	var dbPwdArg string
-	flag.StringVar(&dbPwdArg, "dbpwd", "147563", "password in database need to connect")
-
 	var initDB bool
 	flag.BoolVar(&initDB, "db", false, "allow recreate model database in postgres")
 
 	flag.Parse()
 	InfoLog.Println("database version: ", version)
 
-	loadEnvParameters(version, dbNameArg, dbPwdArg)
+	loadEnvParameters(version)
 	if err := loadAuthToken(); err != nil {
 		ErrLog.Println("error load auth token: ", err)
 	}
 
-	// if err := InitRedis(); err != nil {
-	// 	log.Fatal("error initialize redis: ", err)
-	// }
+	if err := InitRedis(); err != nil {
+		log.Fatal("error initialize redis: ", err)
+	}
 
 	if err := InitDatabase(initDB); err != nil {
 		ErrLog.Println("error initialize database: ", err)
@@ -281,4 +287,15 @@ func GetPublicKey() interface{} {
 
 func GetEnvironments() string {
 	return env
+}
+
+// Get User role in environment
+func GetAdminRole() uint {
+	return adminRole
+}
+func GetEnterpriseRole() uint {
+	return enterpriseRole
+}
+func GetStudentRole() uint {
+	return studentRole
 }

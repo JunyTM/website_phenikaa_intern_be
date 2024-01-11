@@ -8,7 +8,6 @@ import (
 
 type Role struct {
 	ID uint `json:"id" gorm:"primaryKey"`
-
 	Code        string  `json:"code" gorm:"unique"`
 	Name        string  `json:"name"`
 	Description *string `json:"description"`

@@ -16,7 +16,8 @@ func openConnection() (*gorm.DB, error) {
 		" password=" + dbPassword +
 		" sslmode=disable"
 	db, err := gorm.Open(postgres.Open(connectSQL), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
+		Logger:          logger.Default.LogMode(logger.Silent),
+		CreateBatchSize: 1000,
 		// DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {

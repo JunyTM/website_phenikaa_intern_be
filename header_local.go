@@ -1,5 +1,4 @@
 package main
-
 // @title       PNK-Intern Swagger
 // @version     2.0
 // @description APIs list for project PNK-Intern

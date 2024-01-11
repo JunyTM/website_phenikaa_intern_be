@@ -62,9 +62,6 @@ func (c *accessController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userInfo.AccessToken = tokenDetail.AccessToken
-	userInfo.RefreshToken = tokenDetail.RefreshToken
-
 	fullDomain := r.Header.Get("Origin")
 	SaveHttpCookie(fullDomain, tokenDetail, w)
 	res = &Response{

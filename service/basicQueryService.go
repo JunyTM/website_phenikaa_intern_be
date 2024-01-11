@@ -23,11 +23,13 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 	var tableName = strcase.ToSnake(payload.ModelType)
 	var modelType = model.MapModelType[payload.ModelType]
 
+	// Get the list id exists in the database
 	var listModelId = make([]uint, 0)
 	if err := db.Model(modelType).Pluck("id", &listModelId).Error; err != nil {
 		return nil, fmt.Errorf("get list id error: %v", err)
 	}
 
+	// Setval the max id in the database
 	var maxModelId uint
 	queryGetMaxId := "SELECT setval('" + tableName + "_id_seq', (SELECT MAX(id) FROM " + tableName + ")+1);"
 	if err := db.Model(modelType).Raw(queryGetMaxId).Scan(&maxModelId).Error; err != nil {
@@ -52,7 +54,7 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 
 		if err := db.Transaction(func(tx *gorm.DB) error {
 			if len(listModelCreate) > 0 {
-				if err := tx.Debug().Model(modelType).Create(&listModelCreate).Error; err != nil {
+				if err := tx.Model(modelType).CreateInBatches(&listModelCreate, 1000).Error; err != nil {
 					return fmt.Errorf("create error: %v", err)
 				}
 			}
@@ -74,7 +76,7 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 		return nil, fmt.Errorf("data is nil cannot upsert")
 	}
 
-	if payload.Data.(map[string]interface{})["id"] == nil  {
+	if payload.Data.(map[string]interface{})["id"] == nil {
 		payload.Data.(map[string]interface{})["id"] = maxModelId
 		if err := db.Model(modelType).Create(payload.Data.(map[string]interface{})).Error; err != nil {
 			return nil, fmt.Errorf("create error: %v", err)
@@ -92,7 +94,7 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 
 				if err := tx.Model(&model.UserRole{}).Create(&model.UserRole{
 					UserID: user.ID,
-					RoleID: 2, // Default role is 2 (companny)
+					RoleID: infrastructure.GetEnterpriseRole(), // Default role is 2 (companny/enterprise) in database
 					Active: true,
 				}).Error; err != nil {
 					return err

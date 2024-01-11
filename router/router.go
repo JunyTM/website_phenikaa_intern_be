@@ -50,7 +50,7 @@ func Router() http.Handler {
 	userController := controller.NewUserController()
 	basicQueryController := controller.NewBasicQueryController()
 	advanceFilterController := controller.NewAdvanceFilterController()
-	fileController := controller.NewFileController()
+	seedController := controller.NewSeedController()
 
 	r.Route("/api/v1", func(router chi.Router) {
 		// Ping the API
@@ -63,11 +63,12 @@ func Router() http.Handler {
 		router.Post("/logout", accessController.Logout)
 		router.Post("/refresh", accessController.Refresh)
 		router.Post("/users/register", userController.Register)
-
+		router.Post("/users/forgot-password", userController.Register)
+		
 		// Private routes
 		router.Group(func(protectRouter chi.Router) {
 			// protectRouter.Use(jwtauth.Authenticator)
-			// protectRouter.Use(jwtauth.Verifier((*jwtauth.JWTAuth)(infrastructure.GetEncodeAuth())))
+			// protectRouter.Use(jwtauth.Verifier(infrastructure.GetEncodeAuth()))
 
 			protectRouter.Route("/users", func(userRouter chi.Router) {
 				userRouter.Put("/reset-password", userController.ResetPassword)
@@ -83,9 +84,9 @@ func Router() http.Handler {
 				accessRouter.Post("/", advanceFilterController.Filter)
 			})
 
-			protectRouter.Route("/upload", func(accessRouter chi.Router) {
-				accessRouter.Post("/", fileController.UploadFileWithPath)
-			})
+			protectRouter.Route("/init", func(internshipRouter chi.Router) {
+                internshipRouter.Get("/", seedController.SeedDatabase)
+            })
 		})
 
 		router.Group(func(protectedRoute chi.Router) {

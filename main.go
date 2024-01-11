@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	// go run main.go
 	infrastructure.InfoLog.Println("Environment: ", infrastructure.GetEnvironments())
 	infrastructure.InfoLog.Println("Server URL: ", infrastructure.GetHTTPURL())
