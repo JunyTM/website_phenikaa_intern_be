@@ -23,6 +23,6 @@ type UserResponse struct {
 	Role     string   `json:"role"`
 	Username string   `json:"username"`
 	Profile  *Profile `json:"profile"`
-	// AccessToken  string `json:"access_token"`
-	// RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }

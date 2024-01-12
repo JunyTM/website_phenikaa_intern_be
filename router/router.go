@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 
-	// "github.com/go-chi/jwtauth"
+	"github.com/go-chi/jwtauth"
 	"github.com/go-chi/render"
 
 	// _ "phenikaa/docs"
@@ -29,11 +29,12 @@ func Router() http.Handler {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(middleware.Timeout(time.Duration(5 * time.Second)))
 	cors := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"*", "http://localhost:5173"}, // Use this to allow specific origin hosts
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
+		
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	})
@@ -67,8 +68,8 @@ func Router() http.Handler {
 		
 		// Private routes
 		router.Group(func(protectRouter chi.Router) {
-			// protectRouter.Use(jwtauth.Authenticator)
-			// protectRouter.Use(jwtauth.Verifier(infrastructure.GetEncodeAuth()))
+			protectRouter.Use(jwtauth.Authenticator)
+			protectRouter.Use(jwtauth.Verifier(infrastructure.GetEncodeAuth()))
 
 			protectRouter.Route("/users", func(userRouter chi.Router) {
 				userRouter.Put("/reset-password", userController.ResetPassword)

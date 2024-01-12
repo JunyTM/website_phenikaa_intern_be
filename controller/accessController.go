@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"phenikaa/model"
 	"phenikaa/service"
+	"strings"
 
 	// "strings"
 
@@ -62,8 +63,19 @@ func (c *accessController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := c.accessService.CreateAuth(int(userInfo.ID), tokenDetail); err != nil {
+		internalServerErrorResponse(w, r, err)
+		return
+	}
+
+	userInfo.AccessToken = tokenDetail.AccessToken
+	userInfo.RefreshToken = tokenDetail.RefreshToken
 	fullDomain := r.Header.Get("Origin")
-	SaveHttpCookie(fullDomain, tokenDetail, w)
+	errCookie := SaveHttpCookie(fullDomain, tokenDetail, w)
+	if errCookie != nil {
+		internalServerErrorResponse(w, r, err)
+		return
+	}
 	res = &Response{
 		Data:    userInfo,
 		Success: true,
@@ -97,25 +109,20 @@ func (c *accessController) Logout(w http.ResponseWriter, r *http.Request) {
 // @Router /refresh [post]
 func (c *accessController) Refresh(w http.ResponseWriter, r *http.Request) {
 	var res Response
-	acccessCookie, errAccessCookie := r.Cookie("AccessToken")
-	if errAccessCookie != nil {
-		unauthorizedResponse(w, r, errAccessCookie)
+	authorization := r.Header.Get("Authorization")
+	if authorization == "" {
+		badRequestResponse(w, r, fmt.Errorf("Authorization header not found"))
 		return
 	}
-	refreshCookie, errRefeshCookie := r.Cookie("RefreshToken")
-	if errRefeshCookie != nil {
-		unauthorizedResponse(w, r, errRefeshCookie)
-		return
-	}
-
-	accessToken := acccessCookie.Value
+	authorizationBearer := strings.Split(authorization, " ")[1]
+	accessToken := strings.Split(authorizationBearer, ";")[0]
 	accessClaims, errDecodeToken := GetAndDecodeToken(accessToken)
 	if errDecodeToken != nil {
 		unauthorizedResponse(w, r, errDecodeToken)
 		return
 	}
 
-	refreshToken := refreshCookie.Value
+	refreshToken := strings.Split(authorizationBearer, ";")[1]
 	refreshClaims, errDecodeToken := GetAndDecodeToken(refreshToken)
 	if errDecodeToken != nil {
 		unauthorizedResponse(w, r, errDecodeToken)
@@ -124,8 +131,9 @@ func (c *accessController) Refresh(w http.ResponseWriter, r *http.Request) {
 
 	accessUuid := accessClaims["access_uuid"].(string)
 	refreshUuid := refreshClaims["refresh_uuid"].(string)
-	userId := uint(refreshClaims["user_id"].(float64))
+	userId := uint(accessClaims["user_id"].(float64))
 	role := refreshClaims["role"].(string)
+	username := refreshClaims["username"].(string)
 
 	// Delete the previous Refresh Token
 	deleteAccess, errDelete := c.accessService.DeleteAuth(accessUuid)
@@ -145,11 +153,29 @@ func (c *accessController) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fullDomain := r.Header.Get("Origin")
-	SaveHttpCookie(fullDomain, tokenDetail, w)
+	// Create new authorization
+	if err := c.accessService.CreateAuth(int(userId), tokenDetail); err != nil {
+		internalServerErrorResponse(w, r, err)
+		return
+	}
 
+	userInfo, err := c.userService.GetByUsername(username)
+	if err != nil {
+		internalServerErrorResponse(w, r, err)
+		return
+	}
+
+	// fullDomain := r.Header.Get("Origin")
+	// errCookie := SaveHttpCookie(fullDomain, tokenDetail, w)
+	// if errCookie != nil {
+	// 	internalServerErrorResponse(w, r, err)
+	// 	return
+	// }
+
+	userInfo.AccessToken = tokenDetail.AccessToken
+	userInfo.RefreshToken = tokenDetail.RefreshToken
 	res = Response{
-		Data:    nil,
+		Data:    userInfo,
 		Success: true,
 		Message: "Refresh success",
 	}
