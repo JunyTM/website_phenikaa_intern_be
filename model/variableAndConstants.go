@@ -16,6 +16,7 @@ var MapModelType = map[string]interface{}{
 	"internshipEvaluates": []InternshipEvaluate{},
 	"internJobs":          []InternJob{},
 	"recruitments":        []Recruitment{},
+	"userForgotPasswords": []UserForgotPassword{},
 }
 
 var MapAssociation = map[string]map[string]interface{}{ // Alown preload association 2 level model

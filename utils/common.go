@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"reflect"
 	"strconv"
 	"strings"
@@ -39,4 +41,14 @@ func InArray(val interface{}, array interface{}) (exists bool, index int) {
 
 func isMn(r rune) bool {
 	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
+}
+
+// GenerateKey random password
+func GeneratePasswordKey(length int) (string, error) {
+	buffer := make([]byte, length)
+	_, err := rand.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(buffer)[:length], nil
 }

@@ -1,10 +1,14 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"phenikaa/infrastructure"
 	"phenikaa/model"
+	"phenikaa/utils"
+	"phenikaa/utils/emailTemplate"
+	"text/template"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -18,6 +22,8 @@ type UserService interface {
 	BanUser(username string) error
 	ResetPassword(username string) error
 	ChangePassword(payload model.ChangePasswordPayload) error
+	ForgotPassword(payload model.ForgotPasswordPayload) error
+	CheckEmailExact(username string) error
 }
 
 type userService struct {
@@ -107,7 +113,7 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 	return &userInfo, nil
 }
 
-// set default password is phenikaa@123
+// Sử dụng mật khẩu mặc định phenikaa@123
 func (s *userService) ResetPassword(username string) error {
 	var user model.User
 	if err := s.db.Model(&user).Where("username = ?", username).
@@ -128,6 +134,25 @@ func (s *userService) ChangePassword(payload model.ChangePasswordPayload) error 
 		Update("password", hashAndSalt(payload.NewPassword)).Error; err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *userService) ForgotPassword(payload model.ForgotPasswordPayload) error {
+	var userForgotPassword model.UserForgotPassword
+	if err := s.db.Model(&model.UserForgotPassword{}).Where("fogot_code = ?", payload.FogortCode).First(&userForgotPassword).Error; err != nil {
+		return fmt.Errorf("Code not exist: %v", err)
+	}
+
+	var user model.User
+	if err := s.db.Model(&model.User{}).Where("id = ?", userForgotPassword.UserId).First(&user).Error; err != nil {
+		return fmt.Errorf("User not exist: %v", err)
+	}
+
+	if err := s.db.Model(&model.User{}).Where("id = ?", userForgotPassword.UserId).
+		Update("password", hashAndSalt(payload.NewPassword)).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -152,6 +177,65 @@ func comparePassword(hashedPwd string, plainPwd string) bool {
 		return false
 	}
 	return true
+}
+
+func (s *userService) CheckEmailExact(email string) error {
+	var profile model.Profile
+	emailExistErr := s.db.Model(&model.Profile{}).Where("email = ?", email).First(&profile).Error
+	if emailExistErr != nil {
+		return fmt.Errorf("Email not exist: %v", emailExistErr)
+	}
+	newCode, err := utils.GeneratePasswordKey(7)
+	if err != nil {
+		return fmt.Errorf("Generate code error: %v", err)
+	}
+	emailDataSend := model.EmailForgotPassword{
+		FogortCode: newCode,
+	}
+
+	// Tạo template từ HTML
+	emailHtmlTemplate := emailTemplate.ForgotPasswordTemplate
+	tmpl, err := template.New("emailForgotTemplate").Parse(emailHtmlTemplate)
+	if err != nil {
+		fmt.Println("Error parsing HTML template:", err)
+		return err
+	}
+
+	// Tạo buffer để lưu nội dung HTML đã render
+	var tplBuffer bytes.Buffer
+	err = tmpl.Execute(&tplBuffer, emailDataSend)
+	if err != nil {
+		return fmt.Errorf("Execute template error: %v", err)
+	}
+
+	// Chuyển đổi nội dung buffer thành chuỗi
+	htmlBody := tplBuffer.String()
+	errSendMail := s.emailService.SendEmail([]string{profile.Email}, "Xác Thực Quên Mật Khẩu Hệ Thống - Phenikaa Intern", htmlBody)
+	if errSendMail != nil {
+		return fmt.Errorf("Send email error: %v", errSendMail)
+	}
+
+	// Lưu code vào database
+	newForgotCode := model.UserForgotPassword{
+		UserId:    profile.UserId,
+		FogotCode: newCode,
+	}
+
+	// Kiểm tra xem user đã có code chưa
+	if err := s.db.Model(&model.UserForgotPassword{}).Where("user_id =?", profile.UserId).First(&model.UserForgotPassword{}).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			if err := s.db.Model(&model.UserForgotPassword{}).Create(&newForgotCode).Error; err != nil {
+				return fmt.Errorf("Create code error: %v", err)
+			}
+		} else {
+			return fmt.Errorf("Check code error: %v", err)
+		}
+	} else {
+		if err := s.db.Model(&model.UserForgotPassword{}).Where("user_id = ?", profile.UserId).Update("fogot_code", newCode).Error; err != nil {
+			return fmt.Errorf("Update code error: %v", err)
+		}
+	}
+	return nil
 }
 
 func NewUserService() UserService {

@@ -31,13 +31,13 @@ func (c *advanceFilterController) Filter(w http.ResponseWriter, r *http.Request)
 	var res Response
 	var payload model.AdvanceFilterPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		badRequestResponse(w, r, err)
+		BadRequestResponse(w, r, err)
 		return
 	}
 
 	temp, err := c.AdvanceFilterService.Filter(payload)
 	if err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 

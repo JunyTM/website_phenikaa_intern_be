@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"phenikaa/controller"
 	"phenikaa/infrastructure"
+	internalMiddle "phenikaa/middlewares"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -31,10 +32,10 @@ func Router() http.Handler {
 	cors := cors.New(cors.Options{
 		AllowedOrigins: []string{"*", "http://localhost:5173"}, // Use this to allow specific origin hosts
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders: []string{"Link"},
+
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	})
@@ -64,11 +65,13 @@ func Router() http.Handler {
 		router.Post("/logout", accessController.Logout)
 		router.Post("/refresh", accessController.Refresh)
 		router.Post("/users/register", userController.Register)
-		router.Post("/users/forgot-password", userController.Register)
-		
+		router.Post("/users/forgot-password", userController.ForgotPassword)
+		router.Post("/users/check-email-exact", userController.CheckEmailExact)
+
 		// Private routes
 		router.Group(func(protectRouter chi.Router) {
 			protectRouter.Use(jwtauth.Authenticator)
+			protectRouter.Use(internalMiddle.Authenticator) 
 			protectRouter.Use(jwtauth.Verifier(infrastructure.GetEncodeAuth()))
 
 			protectRouter.Route("/users", func(userRouter chi.Router) {
@@ -86,8 +89,8 @@ func Router() http.Handler {
 			})
 
 			protectRouter.Route("/init", func(internshipRouter chi.Router) {
-                internshipRouter.Get("/", seedController.SeedDatabase)
-            })
+				internshipRouter.Get("/", seedController.SeedDatabase)
+			})
 		})
 
 		router.Group(func(protectedRoute chi.Router) {

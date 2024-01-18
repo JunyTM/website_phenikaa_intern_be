@@ -59,3 +59,12 @@ type ChangePasswordPayload struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword"`
 }
+
+type ForgotPasswordPayload struct {
+	FogortCode  string `json:"forgotCode"`
+	NewPassword string `json:"newPassword"`
+}
+
+type EmailForgotPayload struct {
+	Email string `json:"email"`
+}

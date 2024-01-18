@@ -31,13 +31,13 @@ type basicQueryController struct {
 func (c *basicQueryController) Upsert(w http.ResponseWriter, r *http.Request) {
 	var payload model.BasicQueryPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		badRequestResponse(w, r, err)
+		BadRequestResponse(w, r, err)
 		return
 	}
 
 	temp, err := c.BasicQueryService.Upsert(payload)
 	if err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -64,12 +64,12 @@ func (c *basicQueryController) Delete(w http.ResponseWriter, r *http.Request) {
 	var res Response
 	var payload model.ListModelId
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		badRequestResponse(w, r, err)
+		BadRequestResponse(w, r, err)
 		return
 	}
 
 	if err := c.BasicQueryService.Delete(payload); err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 

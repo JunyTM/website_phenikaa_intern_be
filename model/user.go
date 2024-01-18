@@ -18,11 +18,20 @@ type User struct {
 	UpdatedAt time.Time      `json:"updatedAt" swaggerignore:"true"`
 }
 
+type UserForgotPassword struct {
+	ID        uint           `json:"id" gorm:"primary_key"`
+	UserId    uint           `json:"user_id" gorm:"unique"`
+	FogotCode string         `json:"fogot_code"`
+	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
+	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`
+	UpdatedAt time.Time      `json:"updatedAt" swaggerignore:"true"`
+}
+
 type UserResponse struct {
-	ID       uint     `json:"id"`
-	Role     string   `json:"role"`
-	Username string   `json:"username"`
-	Profile  *Profile `json:"profile"`
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	ID           uint     `json:"id"`
+	Role         string   `json:"role"`
+	Username     string   `json:"username"`
+	Profile      *Profile `json:"profile"`
+	AccessToken  string   `json:"access_token"`
+	RefreshToken string   `json:"refresh_token"`
 }

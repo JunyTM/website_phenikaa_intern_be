@@ -12,7 +12,7 @@ type Response struct {
 	Message string      `json:"message"`
 }
 
-func badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+func BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	w.WriteHeader(http.StatusBadRequest)
 	w.Header().Set(http.StatusText(http.StatusBadRequest), err.Error())
 	res := Response{
@@ -23,7 +23,7 @@ func badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	render.JSON(w, r, res)
 }
 
-func internalServerErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
+func InternalServerErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Header().Set(http.StatusText(http.StatusInternalServerError), err.Error())
 	res := Response{
@@ -34,7 +34,7 @@ func internalServerErrorResponse(w http.ResponseWriter, r *http.Request, err err
 	render.JSON(w, r, res)
 }
 
-func unauthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
+func UnauthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
 	w.WriteHeader(http.StatusUnauthorized)
 	w.Header().Set(http.StatusText(http.StatusUnauthorized), err.Error())
 	res := Response{
@@ -45,7 +45,7 @@ func unauthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
 	render.JSON(w, r, res)
 }
 
-func forbiddenResponse(w http.ResponseWriter, r *http.Request, err error) {
+func ForbiddenResponse(w http.ResponseWriter, r *http.Request, err error) {
 	w.WriteHeader(http.StatusForbidden)
 	w.Header().Set(http.StatusText(http.StatusForbidden), err.Error())
 	res := Response{

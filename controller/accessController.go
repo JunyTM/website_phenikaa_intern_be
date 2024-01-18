@@ -39,32 +39,32 @@ func (c *accessController) Login(w http.ResponseWriter, r *http.Request) {
 	var res *Response
 	var payload model.LoginPayload
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		badRequestResponse(w, r, err)
+		BadRequestResponse(w, r, err)
 		return
 	}
 
 	if check, err := c.userService.CheckCredentials(payload.Username, payload.Password); err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	} else if check != true {
-		internalServerErrorResponse(w, r, fmt.Errorf("Credentials was not match, auth: %v", check))
+		InternalServerErrorResponse(w, r, fmt.Errorf("Credentials was not match, auth: %v", check))
 		return
 	}
 
 	userInfo, err := c.userService.GetByUsername(payload.Username)
 	if err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 
 	tokenDetail, err := c.accessService.CreateToken(userInfo.ID, userInfo.Role)
 	if err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 
 	if err := c.accessService.CreateAuth(int(userInfo.ID), tokenDetail); err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 
@@ -73,7 +73,7 @@ func (c *accessController) Login(w http.ResponseWriter, r *http.Request) {
 	fullDomain := r.Header.Get("Origin")
 	errCookie := SaveHttpCookie(fullDomain, tokenDetail, w)
 	if errCookie != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 	res = &Response{
@@ -111,21 +111,21 @@ func (c *accessController) Refresh(w http.ResponseWriter, r *http.Request) {
 	var res Response
 	authorization := r.Header.Get("Authorization")
 	if authorization == "" {
-		badRequestResponse(w, r, fmt.Errorf("Authorization header not found"))
+		BadRequestResponse(w, r, fmt.Errorf("Authorization header not found"))
 		return
 	}
 	authorizationBearer := strings.Split(authorization, " ")[1]
 	accessToken := strings.Split(authorizationBearer, ";")[0]
 	accessClaims, errDecodeToken := GetAndDecodeToken(accessToken)
 	if errDecodeToken != nil {
-		unauthorizedResponse(w, r, errDecodeToken)
+		UnauthorizedResponse(w, r, errDecodeToken)
 		return
 	}
 
 	refreshToken := strings.Split(authorizationBearer, ";")[1]
 	refreshClaims, errDecodeToken := GetAndDecodeToken(refreshToken)
 	if errDecodeToken != nil {
-		unauthorizedResponse(w, r, errDecodeToken)
+		UnauthorizedResponse(w, r, errDecodeToken)
 		return
 	}
 
@@ -138,37 +138,37 @@ func (c *accessController) Refresh(w http.ResponseWriter, r *http.Request) {
 	// Delete the previous Refresh Token
 	deleteAccess, errDelete := c.accessService.DeleteAuth(accessUuid)
 	if errDelete != nil || deleteAccess == 0 { // if any goes wrong
-		forbiddenResponse(w, r, errDelete)
+		ForbiddenResponse(w, r, errDelete)
 	}
 
 	deletedRefesh, errDelete := c.accessService.DeleteAuth(refreshUuid)
 	if errDelete != nil || deletedRefesh == 0 { // if any goes wrong
-		forbiddenResponse(w, r, errDelete)
+		ForbiddenResponse(w, r, errDelete)
 	}
 
 	// Create new pairs of refresh and access tokens
 	tokenDetail, err := c.accessService.CreateToken(userId, role)
 	if err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 
 	// Create new authorization
 	if err := c.accessService.CreateAuth(int(userId), tokenDetail); err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 
 	userInfo, err := c.userService.GetByUsername(username)
 	if err != nil {
-		internalServerErrorResponse(w, r, err)
+		InternalServerErrorResponse(w, r, err)
 		return
 	}
 
 	// fullDomain := r.Header.Get("Origin")
 	// errCookie := SaveHttpCookie(fullDomain, tokenDetail, w)
 	// if errCookie != nil {
-	// 	internalServerErrorResponse(w, r, err)
+	// 	InternalServerErrorResponse(w, r, err)
 	// 	return
 	// }
 
