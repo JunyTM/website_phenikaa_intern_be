@@ -31,6 +31,7 @@ type UserResponse struct {
 	ID           uint     `json:"id"`
 	Role         string   `json:"role"`
 	Username     string   `json:"username"`
+	FullName     string   `json:"fullname"`
 	Profile      *Profile `json:"profile"`
 	AccessToken  string   `json:"access_token"`
 	RefreshToken string   `json:"refresh_token"`

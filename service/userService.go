@@ -56,6 +56,7 @@ func (s *userService) GetByUsername(username string) (*model.UserResponse, error
 	}
 	userResponse.ID = user.ID
 	userResponse.Username = user.Username
+	userResponse.FullName = profile.Name
 	userResponse.Role = user.UserRoles[0].Role.Code
 	userResponse.Profile = profile
 
