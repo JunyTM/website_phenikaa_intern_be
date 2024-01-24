@@ -1,18 +1,5 @@
 version: "3.3"
 services:
-  builder:
-    image: intern-backend-builder:builder
-    build:
-      context: . # Use an image built from the specified dockerfile in the current directory.
-      dockerfile: Dockerfile.builder
-      args:
-        - HEADER_FILE=header_production.go
-        - ENV_FILE=.env
-    networks:
-      - api-net
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
   api:
     image: intern-backend:backend
     build:
