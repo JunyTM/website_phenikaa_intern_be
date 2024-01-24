@@ -27,10 +27,10 @@ services:
     networks:
       - api-net
     depends_on:
-      - redis
+      - redis-prd
     extra_hosts:
     - "host.docker.internal:host-gateway"
-    
+
   redis-prd:
     image: redis:alpine
     restart: unless-stopped
