@@ -12,29 +12,30 @@ services:
       - api-net
     extra_hosts:
       - "host.docker.internal:host-gateway"
+  api:
+    image: intern-backend:backend
+    build:
+      context: . # Use an image built from the specified dockerfile in the current directory.
+      dockerfile: Dockerfile
+      args:
+        - HEADER_FILE=header_production.go
+        - ENV_FILE=.env.pro
+    restart: unless-stopped
+    ports:
+      - 12002:12002
+    networks:
+      - api-net
+    depends_on:
+      - redis
 
-    api:
-      image: intern-backend:backend
-      build:
-        context: . # Use an image built from the specified dockerfile in the current directory.
-        dockerfile: Dockerfile
-        args:
-          - HEADER_FILE=header_production.go
-          - ENV_FILE=.env.pro
-      restart: unless-stopped
-      ports:
-        - 12002:12002
-      networks:
-        - api-net
-      depends_on:
-        - redis
+  redis-prd:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - api-net
+    ports:
+      - 6379:6379
 
-    redis-prd:
-      image: redis:alpine
-      restart: unless-stopped
-      networks:
-        - api-net
-      ports:
-        - 6379:6379  
-  networks:
-    api-net:
+networks:
+  api-net:
+   driver: bridge
