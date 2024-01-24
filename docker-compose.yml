@@ -34,5 +34,5 @@ services:
       ports:
         - 6379:6379
   
-  networks:
-    api-net:
+networks:
+  api-net:
