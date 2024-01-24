@@ -8,8 +8,9 @@ services:
       args:
         - HEADER_FILE=header_production.go
         - ENV_FILE=.env.pro
-    networks:
-      - api-net
+      networks:
+        - api-net
+
     api:
       image: intern-backend:backend
       build:
@@ -32,7 +33,6 @@ services:
       networks:
         - api-net
       ports:
-        - 6379:6379
-  
-networks:
-  api-net:
+        - 6379:6379  
+  networks:
+    api-net:
