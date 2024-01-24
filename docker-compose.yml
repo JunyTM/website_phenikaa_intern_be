@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
       args:
         - HEADER_FILE=header_production.go
-        - ENV_FILE=.env.pro
+        - ENV_FILE=.env
     restart: unless-stopped
     ports:
       - 12002:12002
