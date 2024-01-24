@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.builder
       args:
         - HEADER_FILE=header_production.go
-        - ENV_FILE=.env.pro
+        - ENV_FILE=.env
     networks:
       - api-net
     extra_hosts:
