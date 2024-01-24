@@ -25,12 +25,14 @@ services:
         - api-net
       depends_on:
         - redis
-        
+
     redis-prd:
       image: redis:alpine
       restart: unless-stopped
       networks:
         - api-net
+      ports:
+        - 6379:6379
   
   networks:
     api-net:
