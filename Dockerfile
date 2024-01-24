@@ -3,9 +3,15 @@ FROM  ubuntu:latest
 
 LABEL maintainer="manhtokim@gmail.com"
 
-RUN apt-get update
-RUN apt-get install -y ca-certificates
-
+RUN apt-get update \
+    && apt-get install -y \
+        ca-certificates \
+        git \
+        gcc \
+        g++ \
+        libc-dev \
+        bash
+        
 WORKDIR /user/loacl/bin
 COPY --from=intern-backend-builder:builder /projects/phenikaa_intern/phenikaa_intern_be/. /usr/local/bin/
 
