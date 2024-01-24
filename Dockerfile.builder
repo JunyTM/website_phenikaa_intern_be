@@ -7,6 +7,14 @@ RUN echo "File swagger: $HEADER_FILE"
 RUN echo "File env: $ENV_FILE"
 
 # RUN apk add bash ca-certificates git gcc g++ libc-dev
+RUN apt-get update && \
+    apt-get install -y \
+        bash \
+        ca-certificates \
+        git \
+        gcc \
+        g++ \
+        libc-dev
 
 # Here we copy the rest of the source code
 RUN mkdir -p /projects/phenikaa_intern/phenikaa_intern_be
@@ -20,7 +28,8 @@ RUN ls -la /projects/phenikaa_intern/
 RUN go mod download
 
 # COPY $HEADER_FILE /projects/dbcl-pdt-backend/$HEADER_FILE
-COPY . /projects/phenikaa_intern
+COPY . /projects/phenikaa_intern/phenikaa_intern_be
 COPY ${ENV_FILE} /projects/phenikaa_intern/phenikaa_intern_be/.env
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o phenikaa_intern_be .
+# RUN CGO_ENABLED=0 GOOS=linux go build -o phenikaa_intern_be .
