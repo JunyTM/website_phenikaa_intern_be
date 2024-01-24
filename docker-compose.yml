@@ -12,6 +12,7 @@ services:
       - api-net
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
   api:
     image: intern-backend:backend
     build:
@@ -27,7 +28,9 @@ services:
       - api-net
     depends_on:
       - redis
-
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
+    
   redis-prd:
     image: redis:alpine
     restart: unless-stopped
