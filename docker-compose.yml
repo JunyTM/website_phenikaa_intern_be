@@ -8,8 +8,10 @@ services:
       args:
         - HEADER_FILE=header_production.go
         - ENV_FILE=.env.pro
-      networks:
-        - api-net
+    networks:
+      - api-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
     api:
       image: intern-backend:backend
