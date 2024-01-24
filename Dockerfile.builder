@@ -6,7 +6,7 @@ ARG ENV_FILE=$ENV_FILE
 RUN echo "File swagger: $HEADER_FILE"
 RUN echo "File env: $ENV_FILE"
 
-RUN apk add bash ca-certificates git gcc g++ libc-dev
+# RUN apk add bash ca-certificates git gcc g++ libc-dev
 
 # Here we copy the rest of the source code
 RUN mkdir -p /projects/phenikaa_intern/phenikaa_intern_be
