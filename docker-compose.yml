@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   api:
-    image: intern-backend:backend
+    image: marsksenior/my-project:intern-backend
     build:
       context: . # Use an image built from the specified dockerfile in the current directory.
       dockerfile: Dockerfile
@@ -9,12 +9,12 @@ services:
         - HEADER_FILE=header_production.go
         - ENV_FILE=.env
     restart: unless-stopped
+    depends_on:
+      - redis-prd
     ports:
       - 12002:12002
     networks:
       - api-net
-    depends_on:
-      - redis-prd
     extra_hosts:
     - "host.docker.internal:host-gateway"
 
