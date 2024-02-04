@@ -102,6 +102,7 @@ var (
 	studentRole    uint
 )
 
+// This function returns the default value if no value is specified
 func getStringEnvParameter(envParam string, defaultValue string) string {
 	if value, ok := os.LookupEnv(envParam); ok {
 		return value
@@ -109,49 +110,47 @@ func getStringEnvParameter(envParam string, defaultValue string) string {
 	return defaultValue
 }
 
-func goDotEnvVariable(key string) string {
+func goDotEnvVariable(key string, version int) string {
 	// load .env file
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
+	switch version {
+	case 1:
+		if err := godotenv.Load(".env"); err != nil {
+			log.Fatal("Error loading.env file")
+		}
+	case 2:
+		if err := godotenv.Load(".env.dev"); err != nil {
+			log.Fatal("Error loading.env.test file")
+		}
+	default:
+		InfoLog.Printf("Environment: %s not found!\n", key)
+		os.Exit(1)
 	}
-
 	return os.Getenv(key)
 }
 
 func loadEnvParameters(version int) {
 	root, _ := os.Getwd()
-	env = getStringEnvParameter(ENV, goDotEnvVariable(ENV))
-	appPort = getStringEnvParameter(APPPORT, goDotEnvVariable(APPPORT))
-	dbPort = getStringEnvParameter(DBPORT, goDotEnvVariable(DBPORT))
+	env = getStringEnvParameter(ENV, goDotEnvVariable(ENV, version))
+	appPort = getStringEnvParameter(APPPORT, goDotEnvVariable(APPPORT, version))
+	dbPort = getStringEnvParameter(DBPORT, goDotEnvVariable(DBPORT, version))
 
-	switch version {
-	case 0:
-		dbHost = getStringEnvParameter(DBHOST, "localhost")
-		dbUser = getStringEnvParameter(DBUSER, "postgres")
-		dbPassword = getStringEnvParameter(DBPASSWORD, "123456")
-		dbName = getStringEnvParameter(DBNAME, "pnk_intern_db_dev")
-		InfoLog.Println("Environment: LOCALHOST")
-
-	default:
-		dbHost = getStringEnvParameter(DBHOST, goDotEnvVariable(DBHOST))
-		dbUser = getStringEnvParameter(DBUSER, goDotEnvVariable(DBUSER))
-		dbPassword = getStringEnvParameter(DBPASSWORD, goDotEnvVariable(DBPASSWORD))
-		dbName = getStringEnvParameter(DBNAME, goDotEnvVariable(DBNAME))
-		InfoLog.Println("Environment: Development Default")
-	}
+	InfoLog.Printf("Environment: %s\n", env)
+	dbHost = getStringEnvParameter(DBHOST, goDotEnvVariable(DBHOST, version))
+	dbUser = getStringEnvParameter(DBUSER, goDotEnvVariable(DBUSER, version))
+	dbPassword = getStringEnvParameter(DBPASSWORD, goDotEnvVariable(DBPASSWORD, version))
+	dbName = getStringEnvParameter(DBNAME, goDotEnvVariable(DBNAME, version))
 
 	privatePath = getStringEnvParameter(PRIVATEPATH, root+"/infrastructure/private.pem")
 	publicPath = getStringEnvParameter(PUBLICPATH, root+"/infrastructure/public.pem")
 
-	extendHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDHOUR, goDotEnvVariable(EXTENDHOUR)))
-	extendRefreshHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDREFRESHHOUR, goDotEnvVariable(EXTENDREFRESHHOUR)))
-	extendAccessMinute, _ = strconv.Atoi(getStringEnvParameter(EXTENDACCESSMINUTE, goDotEnvVariable(EXTENDACCESSMINUTE)))
+	extendHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDHOUR, goDotEnvVariable(EXTENDHOUR, version)))
+	extendRefreshHour, _ = strconv.Atoi(getStringEnvParameter(EXTENDREFRESHHOUR, goDotEnvVariable(EXTENDREFRESHHOUR, version)))
+	extendAccessMinute, _ = strconv.Atoi(getStringEnvParameter(EXTENDACCESSMINUTE, goDotEnvVariable(EXTENDACCESSMINUTE, version)))
 
-	redisURL = getStringEnvParameter(REDISURL, goDotEnvVariable("REDIS_URL"))
+	redisURL = getStringEnvParameter(REDISURL, goDotEnvVariable("REDIS_URL", version))
 
-	httpURL = getStringEnvParameter(HTTPURL, goDotEnvVariable(HTTPURL))
-	httpSwagger = getStringEnvParameter(HTTPSWAGGER, goDotEnvVariable(HTTPSWAGGER))
+	httpURL = getStringEnvParameter(HTTPURL, goDotEnvVariable(HTTPURL, version))
+	httpSwagger = getStringEnvParameter(HTTPSWAGGER, goDotEnvVariable(HTTPSWAGGER, version))
 
 	rootPath = getStringEnvParameter(ROOTPATH, root)
 
@@ -163,14 +162,14 @@ func loadEnvParameters(version int) {
 	NameRefreshTokenInCookie = "RefreshToken"
 	NameAccessTokenInCookie = "AccessToken"
 
-	mailServer = getStringEnvParameter(MAILSERVER, goDotEnvVariable(MAILSERVER))
-	mailPort = getStringEnvParameter(MAILPORT, goDotEnvVariable(MAILPORT))
-	mailAccount = getStringEnvParameter(MAILACCOUNT, goDotEnvVariable(MAILACCOUNT))
-	mailPassword = getStringEnvParameter(MAILPASS, goDotEnvVariable(MAILPASS))
+	mailServer = getStringEnvParameter(MAILSERVER, goDotEnvVariable(MAILSERVER, version))
+	mailPort = getStringEnvParameter(MAILPORT, goDotEnvVariable(MAILPORT, version))
+	mailAccount = getStringEnvParameter(MAILACCOUNT, goDotEnvVariable(MAILACCOUNT, version))
+	mailPassword = getStringEnvParameter(MAILPASS, goDotEnvVariable(MAILPASS, version))
 
-	adminRoleStr, _ := strconv.Atoi(getStringEnvParameter(ADMIN_ROLE, goDotEnvVariable(ADMIN_ROLE)))
-	enterpriseRoleStr, _ := strconv.Atoi(getStringEnvParameter(ENTERPRISE_ROLE, goDotEnvVariable(ENTERPRISE_ROLE)))
-	studentRoleStr, _ := strconv.Atoi(getStringEnvParameter(STUDENT_ROLE, goDotEnvVariable(STUDENT_ROLE)))
+	adminRoleStr, _ := strconv.Atoi(getStringEnvParameter(ADMIN_ROLE, goDotEnvVariable(ADMIN_ROLE, version)))
+	enterpriseRoleStr, _ := strconv.Atoi(getStringEnvParameter(ENTERPRISE_ROLE, goDotEnvVariable(ENTERPRISE_ROLE, version)))
+	studentRoleStr, _ := strconv.Atoi(getStringEnvParameter(STUDENT_ROLE, goDotEnvVariable(STUDENT_ROLE, version)))
 	adminRole = uint(adminRoleStr)
 	enterpriseRole = uint(enterpriseRoleStr)
 	studentRole = uint(studentRoleStr)
@@ -185,7 +184,7 @@ func init() {
 
 	// Get version ARGS
 	var version int
-	flag.IntVar(&version, "v", 1, "select version dev v1 or dev v2")
+	flag.IntVar(&version, "v", 1, "select version product - v1 or dev - v2")
 
 	var initDB bool
 	flag.BoolVar(&initDB, "db", false, "allow recreate model database in postgres")
